@@ -468,6 +468,40 @@
   flex-shrink: 0;
 }
 
+.notes-bar {
+  margin: 10px 12px 0;
+  background: white;
+  border-radius: var(--radius);
+  border: 0.5px solid var(--gray-200);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  padding: 14px 16px;
+}
+.notes-bar-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--gray-400);
+  margin-bottom: 8px;
+}
+.notes-textarea {
+  width: 100%;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  padding: 10px 12px;
+  border: 0.5px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+  background: var(--gray-50);
+  color: var(--gray-900);
+  outline: none;
+  resize: none;
+  min-height: 72px;
+  line-height: 1.5;
+  transition: border-color 0.15s;
+}
+.notes-textarea:focus { border-color: var(--green); background: white; }
+.notes-textarea::placeholder { color: var(--gray-400); }
+
 @media (min-width: 480px) {
     .sections-wrap { max-width: 520px; margin: 0 auto; }
     .footer { padding: 14px; }
@@ -498,6 +532,10 @@
       <span class="skip-icon">✕</span>
       No groceries today
     </button>
+  </div>
+  <div class="notes-bar">
+    <div class="notes-bar-label">Notes for Leah</div>
+    <textarea class="notes-textarea" id="order-notes" placeholder="Any special instructions, reminders, or notes for this order..."></textarea>
   </div>
   <div class="sections-wrap" id="sections-wrap"></div>
 </div>
@@ -567,14 +605,20 @@ function lastBoughtLabel(dateStr) {
 function updateTotals() {
   const checked = Object.values(selections).filter(s => s.checked).length;
   const total = allItems.filter(i => i.store !== 'Jewel').length;
+  // Count non-empty custom items across all sections
+  let customCount = 0;
+  Object.values(customItems).forEach(rows => {
+    rows.forEach(r => { if (r && r.name && r.name.trim()) customCount++; });
+  });
+  const totalSelected = checked + customCount;
   document.getElementById('badge-total').textContent =
-    checked === 0 ? '0 items' : `${checked} item${checked !== 1 ? 's' : ''}`;
+    totalSelected === 0 ? '0 items' : `${totalSelected} item${totalSelected !== 1 ? 's' : ''}`;
   document.getElementById('progress-bar').style.width =
     total > 0 ? `${Math.min(100, (checked / total) * 100)}%` : '0%';
   const btn = document.getElementById('submit-btn');
-  btn.disabled = checked === 0;
-  btn.textContent = checked === 0 ? 'Select items to submit' :
-    `Submit ${checked} item${checked !== 1 ? 's' : ''}`;
+  btn.disabled = totalSelected === 0;
+  btn.textContent = totalSelected === 0 ? 'Select items to submit' :
+    `Submit ${totalSelected} item${totalSelected !== 1 ? 's' : ''}`;
 }
 
 // ── Data loading ──────────────────────────────────────────────────────────────
@@ -817,6 +861,7 @@ function syncCustom(sectionKey, idx, field, value) {
   if (!customItems[sectionKey]) customItems[sectionKey] = [];
   if (!customItems[sectionKey][idx]) customItems[sectionKey][idx] = { name:'', qty:'', notes:'' };
   customItems[sectionKey][idx][field] = value;
+  updateTotals();
 }
 
 // ── Submit ────────────────────────────────────────────────────────────────────
@@ -830,7 +875,8 @@ function skipGroceries() {
     skipped: true,
     selectedItems: [],
     customItems: [],
-    totalItems: 0
+    totalItems: 0,
+    orderNotes: ''
   };
 
   fetch(SUBMIT_WEBHOOK, {
@@ -882,23 +928,64 @@ async function submitOrder() {
     });
   });
 
-  const payload = {
-    submittedAt: new Date().toISOString(),
-    sessionDate: today(),
-    selectedItems: selected,
-    customItems: custom,
-    totalItems: selected.length + custom.length
-  };
+  const today_date = new Date().toISOString().slice(0,10);
 
-  try {
-    // Send as text/plain to bypass CORS preflight — Zapier parses it fine
-    await fetch(SUBMIT_WEBHOOK, {
+  // Send one request per selected item so Zapier can update each Notion page
+  // individually without needing a loop step
+  const allRequests = selected.map(item =>
+    fetch(SUBMIT_WEBHOOK, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify(payload)
-    });
+      body: JSON.stringify({
+        type: 'selected',
+        sessionDate: today(),
+        notionPageId: item.notionPageId,
+        name: item.name,
+        section: item.section,
+        quantity: item.quantity,
+        lastPurchased: today_date,
+        skipped: false
+      })
+    }).catch(() => {})
+  );
+
+  // Also send one request per custom item
+  const customRequests = custom.map(item =>
+    fetch(SUBMIT_WEBHOOK, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({
+        type: 'custom',
+        sessionDate: today(),
+        name: item.name,
+        section: item.section,
+        quantity: item.quantity,
+        notes: item.notes,
+        lastPurchased: today_date,
+        skipped: false
+      })
+    }).catch(() => {})
+  );
+
+  // Send a final summary request
+  const summaryRequest = fetch(SUBMIT_WEBHOOK, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify({
+      type: 'summary',
+      sessionDate: today(),
+      totalItems: selected.length + custom.length,
+      customItemCount: custom.length,
+      skipped: false,
+      itemNames: selected.map(i => i.name).join(', '),
+      customItemNames: custom.map(i => i.name).join(', ')
+    })
+  }).catch(() => {});
+
+  try {
+    await Promise.all([...allRequests, ...customRequests, summaryRequest]);
   } catch(e) {
-    // Still show success — Zapier may return CORS error on success
+    // Still show success
   }
 
   showSuccess(selected, custom);
