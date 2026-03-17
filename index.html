@@ -835,7 +835,7 @@ function skipGroceries() {
 
   fetch(SUBMIT_WEBHOOK, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'text/plain' },
     body: JSON.stringify(payload)
   }).catch(() => {});
 
@@ -891,9 +891,10 @@ async function submitOrder() {
   };
 
   try {
+    // Send as text/plain to bypass CORS preflight — Zapier parses it fine
     await fetch(SUBMIT_WEBHOOK, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify(payload)
     });
   } catch(e) {
