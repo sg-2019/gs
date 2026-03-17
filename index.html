@@ -432,7 +432,43 @@
   .freq-occasional { color: var(--gray-400); }
   .freq-rare { color: var(--gray-300, #d1d5db); }
 
-  @media (min-width: 480px) {
+  .skip-bar {
+  margin: 10px 12px 0;
+  background: white;
+  border-radius: var(--radius);
+  border: 1.5px solid var(--gray-200);
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+.skip-btn {
+  width: 100%;
+  padding: 14px 16px;
+  background: white;
+  border: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--gray-600);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.12s;
+}
+.skip-btn:hover { background: var(--gray-50); }
+.skip-btn:active { background: var(--gray-100); }
+.skip-icon {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid var(--gray-400);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px;
+  color: var(--gray-400);
+  flex-shrink: 0;
+}
+
+@media (min-width: 480px) {
     .sections-wrap { max-width: 520px; margin: 0 auto; }
     .footer { padding: 14px; }
     .footer > * { max-width: 520px; margin: 0 auto; display: block; }
@@ -457,6 +493,12 @@
 
 
 <div id="main-content" style="display:none;">
+  <div class="skip-bar">
+    <button class="skip-btn" onclick="skipGroceries()">
+      <span class="skip-icon">✕</span>
+      No groceries today
+    </button>
+  </div>
   <div class="sections-wrap" id="sections-wrap"></div>
 </div>
 
@@ -475,9 +517,9 @@
 
 <script src="config.js"></script>
 <script>
-// Webhook URL loaded from config.js (not committed to GitHub)
-// If config.js is missing, submissions will log to console only
-const SUBMIT_WEBHOOK = window.GROCERY_CONFIG?.submitWebhook || '';
+// Webhook URL read from URL parameter ?hook=... so it never touches GitHub
+const params = new URLSearchParams(window.location.search);
+const SUBMIT_WEBHOOK = params.get('hook') || window.GROCERY_CONFIG?.submitWebhook || '';
 
 const SECTION_CONFIG = [
   { key: 'Fruits',              emoji: '🍓', label: 'Fruits' },
@@ -560,6 +602,8 @@ function buildUI() {
       defaultQty: item.quantity || '1',
       name: item.name,
       section: item.section,
+      qtyType: item.qtyType || 'count',
+      clarifier: item.clarifier || '',
       lastPurchased: item.lastPurchased || null,
     };
   });
@@ -653,17 +697,19 @@ function buildItemRow(item) {
   row.id = `row-${item.id}`;
 
   const lb = lastBoughtLabel(item.lastPurchased);
-  const qtyDisplay = item.quantity || '1';
+  const qtyType = item.qtyType || 'count';
+  const qtyDisplay = qtyType === 'lb' ? (item.quantity || '1') + ' lb' : (item.quantity || '1');
+  const clarifier = item.clarifier ? ` <span style="font-weight:400;color:var(--gray-400)">(${escHtml(item.clarifier)})</span>` : '';
 
   row.innerHTML = `
     <div class="checkbox" id="chk-${item.id}" onclick="toggleItem('${item.id}')"></div>
     <div class="item-info">
-      <div class="item-name">${escHtml(item.name)}</div>
+      <div class="item-name">${escHtml(item.name)}${clarifier}</div>
       ${item.notes ? `<div class="item-notes">${escHtml(item.notes)}</div>` : ''}
     </div>
     <div class="qty-controls" id="qty-${item.id}">
       <button class="qty-btn" onclick="adjQty('${item.id}',-1)">−</button>
-      <div class="qty-val" id="qval-${item.id}">${escHtml(qtyDisplay)}</div>
+      <div class="qty-val" id="qval-${item.id}">${qtyDisplay}</div>
       <button class="qty-btn" onclick="adjQty('${item.id}',1)">+</button>
     </div>
     <div class="item-last ${lb.cls}" id="last-${item.id}">${lb.text}</div>
@@ -707,16 +753,29 @@ function adjQty(id, delta) {
   const sel = selections[id];
   if (!sel || !sel.checked) return;
 
-  // Try numeric adjustment first
-  const current = sel.qty;
-  const num = parseFloat(current);
-  if (!isNaN(num)) {
-    const next = Math.max(1, num + delta);
-    sel.qty = Number.isInteger(next) ? String(next) : next.toFixed(1);
-  } else {
-    // Non-numeric qty — just cycle through simple numbers
-    sel.qty = delta > 0 ? '2' : '1';
+  // Bread toggle: cycle between 1 and 1/2
+  if (sel.qtyType === 'bread') {
+    sel.qty = sel.qty === '1' ? '1/2' : '1';
+    document.getElementById(`qval-${id}`).textContent = sel.qty;
+    return;
   }
+
+  // Pound items: 0.25 lb increments, min 0.25
+  if (sel.qtyType === 'lb') {
+    const num = parseFloat(sel.qty) || 0.25;
+    const next = Math.max(0.25, Math.round((num + delta * 0.25) * 4) / 4);
+    const fracs = { 0.25: '1/4', 0.5: '1/2', 0.75: '3/4' };
+    const whole = Math.floor(next);
+    const frac = Math.round((next - whole) * 4) / 4;
+    const fracStr = fracs[frac] || '';
+    sel.qty = whole > 0 && fracStr ? `${whole} ${fracStr}` : (fracStr || String(whole));
+    document.getElementById(`qval-${id}`).textContent = sel.qty + ' lb';
+    return;
+  }
+
+  // Default: whole number increments, min 1
+  const num = parseFloat(sel.qty) || 1;
+  sel.qty = String(Math.max(1, num + delta));
   document.getElementById(`qval-${id}`).textContent = sel.qty;
 }
 
@@ -761,6 +820,35 @@ function syncCustom(sectionKey, idx, field, value) {
 }
 
 // ── Submit ────────────────────────────────────────────────────────────────────
+
+function skipGroceries() {
+  if (!confirm('Skip groceries this week? This will notify Leah that no Whole Foods run is needed.')) return;
+
+  const payload = {
+    submittedAt: new Date().toISOString(),
+    sessionDate: today(),
+    skipped: true,
+    selectedItems: [],
+    customItems: [],
+    totalItems: 0
+  };
+
+  fetch(SUBMIT_WEBHOOK, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  }).catch(() => {});
+
+  // Show skip success screen
+  document.getElementById('main-content').style.display = 'none';
+  document.getElementById('footer').style.display = 'none';
+  const screen = document.getElementById('success-screen');
+  screen.classList.add('visible');
+  screen.querySelector('h2').textContent = 'No groceries today';
+  screen.querySelector('p').textContent = 'Got it — no Whole Foods run this week. Leah has been notified.';
+  screen.querySelector('.success-icon').textContent = '✕';
+  document.getElementById('success-summary').style.display = 'none';
+}
 
 async function submitOrder() {
   const btn = document.getElementById('submit-btn');
@@ -852,104 +940,106 @@ function showSuccess(selected, custom) {
 }
 
 // ── Fallback data (used when webhook not yet configured) ──────────────────────
+// qtyType: 'count' (whole numbers), 'lb' (0.25 increments), 'bread' (1 or 1/2)
+// clarifier: unit shown in parentheses next to item name e.g. (head), (bunch)
 
 const FALLBACK_ITEMS = [
   // Fruits
-  { id:'f1', name:'Bananas', section:'Fruits', frequency:'Every week', quantity:'2-4', notes:'Mix of ripe and firm', store:'Whole Foods', lastPurchased:'' },
-  { id:'f2', name:'Mixed melon (container)', section:'Fruits', frequency:'Every week', quantity:'1 small container', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'f3', name:'Blueberries (jumbo)', section:'Fruits', frequency:'Most weeks', quantity:'1 container', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'f4', name:'Strawberries', section:'Fruits', frequency:'Most weeks', quantity:'1 container', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'f5', name:'Granny Smith apples', section:'Fruits', frequency:'Occasional', quantity:'5-6', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'f6', name:'Grapes (green)', section:'Fruits', frequency:'Occasional', quantity:'1 bag', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'f7', name:'Mango', section:'Fruits', frequency:'Occasional', quantity:'1', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'f8', name:'Limes', section:'Fruits', frequency:'Occasional', quantity:'3-4', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'f9', name:'Lemons', section:'Fruits', frequency:'Occasional', quantity:'3-4', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'f1', name:'Bananas', section:'Fruits', frequency:'Every week', quantity:'2', qtyType:'count', clarifier:'', notes:'Mix of ripe and firm', store:'Whole Foods', lastPurchased:'' },
+  { id:'f2', name:'Mixed melon', section:'Fruits', frequency:'Every week', quantity:'1', qtyType:'count', clarifier:'container', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'f3', name:'Blueberries', section:'Fruits', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'container', notes:'Jumbo', store:'Whole Foods', lastPurchased:'' },
+  { id:'f4', name:'Strawberries', section:'Fruits', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'container', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'f5', name:'Granny Smith apples', section:'Fruits', frequency:'Occasional', quantity:'5', qtyType:'count', clarifier:'', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'f6', name:'Grapes', section:'Fruits', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'bag', notes:'Green', store:'Whole Foods', lastPurchased:'' },
+  { id:'f7', name:'Mango', section:'Fruits', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'f8', name:'Limes', section:'Fruits', frequency:'Occasional', quantity:'4', qtyType:'count', clarifier:'', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'f9', name:'Lemons', section:'Fruits', frequency:'Occasional', quantity:'4', qtyType:'count', clarifier:'', notes:'', store:'Whole Foods', lastPurchased:'' },
   // Vegetables
-  { id:'v1', name:'Broccoli', section:'Vegetables', frequency:'Most weeks', quantity:'1 head', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'v2', name:'Purple cauliflower', section:'Vegetables', frequency:'Most weeks', quantity:'1 head', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'v3', name:'English cucumber', section:'Vegetables', frequency:'Most weeks', quantity:'1', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'v4', name:'Carrots', section:'Vegetables', frequency:'Most weeks', quantity:'1 bunch', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'v5', name:'Baby yellow potatoes', section:'Vegetables', frequency:'Most weeks', quantity:'1 small bag', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'v6', name:'Avocado', section:'Vegetables', frequency:'Most weeks', quantity:'1-2', notes:'Firm ok if not eating immediately', store:'Whole Foods', lastPurchased:'' },
-  { id:'v7', name:'Red bell pepper', section:'Vegetables', frequency:'Most weeks', quantity:'1-2', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'v8', name:'Red onion', section:'Vegetables', frequency:'Most weeks', quantity:'1', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'v9', name:'Sweet onion', section:'Vegetables', frequency:'Occasional', quantity:'2', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'v10', name:'Iceberg lettuce', section:'Vegetables', frequency:'Occasional', quantity:'1 head', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'v11', name:'Cherry tomatoes', section:'Vegetables', frequency:'Occasional', quantity:'1 small pint', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'v12', name:'Tomatoes (slicing)', section:'Vegetables', frequency:'Occasional', quantity:'2', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'v13', name:'Mushrooms', section:'Vegetables', frequency:'Occasional', quantity:'1 container', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'v14', name:'Snap or snow peas', section:'Vegetables', frequency:'Occasional', quantity:'1 small bag', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'v15', name:'Radishes', section:'Vegetables', frequency:'Occasional', quantity:'1 bunch', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'v16', name:'Scallions', section:'Vegetables', frequency:'Occasional', quantity:'1 bunch', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'v17', name:'Fennel', section:'Vegetables', frequency:'Rare', quantity:'1 large bulb', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'v18', name:'Jalapeño', section:'Vegetables', frequency:'Rare', quantity:'2', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'v19', name:'Corn (ears)', section:'Vegetables', frequency:'Rare', quantity:'4 ears', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'v20', name:'Russet potatoes', section:'Vegetables', frequency:'Rare', quantity:'3', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'v21', name:'Sweet potato', section:'Vegetables', frequency:'Rare', quantity:'1', notes:'The usual one for pancakes', store:'Whole Foods', lastPurchased:'' },
+  { id:'v1', name:'Broccoli', section:'Vegetables', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'head', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'v2', name:'Purple cauliflower', section:'Vegetables', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'head', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'v3', name:'English cucumber', section:'Vegetables', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'v4', name:'Carrots', section:'Vegetables', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'bunch', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'v5', name:'Baby yellow potatoes', section:'Vegetables', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'small bag', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'v6', name:'Avocado', section:'Vegetables', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'', notes:'Firm ok if not eating immediately', store:'Whole Foods', lastPurchased:'' },
+  { id:'v7', name:'Red bell pepper', section:'Vegetables', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'v8', name:'Red onion', section:'Vegetables', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'v9', name:'Sweet onion', section:'Vegetables', frequency:'Occasional', quantity:'2', qtyType:'count', clarifier:'', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'v10', name:'Iceberg lettuce', section:'Vegetables', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'head', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'v11', name:'Cherry tomatoes', section:'Vegetables', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'pint', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'v12', name:'Tomatoes', section:'Vegetables', frequency:'Occasional', quantity:'2', qtyType:'count', clarifier:'slicing', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'v13', name:'Mushrooms', section:'Vegetables', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'container', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'v14', name:'Snap or snow peas', section:'Vegetables', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'small bag', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'v15', name:'Radishes', section:'Vegetables', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'bunch', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'v16', name:'Scallions', section:'Vegetables', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'bunch', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'v17', name:'Fennel', section:'Vegetables', frequency:'Rare', quantity:'1', qtyType:'count', clarifier:'large bulb', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'v18', name:'Jalapeño', section:'Vegetables', frequency:'Rare', quantity:'2', qtyType:'count', clarifier:'', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'v19', name:'Corn', section:'Vegetables', frequency:'Rare', quantity:'4', qtyType:'count', clarifier:'ears', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'v20', name:'Russet potatoes', section:'Vegetables', frequency:'Rare', quantity:'3', qtyType:'count', clarifier:'', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'v21', name:'Sweet potato', section:'Vegetables', frequency:'Rare', quantity:'1', qtyType:'count', clarifier:'', notes:'The usual one for pancakes', store:'Whole Foods', lastPurchased:'' },
   // Protein
-  { id:'p1', name:'Boneless skinless chicken thighs', section:'Protein', frequency:'Every week', quantity:'1 pack', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'p2', name:'Boneless skinless chicken breasts', section:'Protein', frequency:'Most weeks', quantity:'1 pack', notes:'Ideally 3 breasts', store:'Whole Foods', lastPurchased:'' },
-  { id:'p3', name:'Bacon', section:'Protein', frequency:'Most weeks', quantity:'1 pack', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'p4', name:'Salmon filet', section:'Protein', frequency:'Occasional', quantity:'1', notes:'Ask to remove skin at fish counter', store:'Whole Foods', lastPurchased:'' },
-  { id:'p5', name:'Scallops (small)', section:'Protein', frequency:'Occasional', quantity:'8 pieces', notes:'From fish counter', store:'Whole Foods', lastPurchased:'' },
-  { id:'p6', name:'Shrimp (peeled, deveined)', section:'Protein', frequency:'Occasional', quantity:'1/2 pound', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'p7', name:'Boneless pork loin chops', section:'Protein', frequency:'Occasional', quantity:'3 chops (~1 lb)', notes:'The skinnier kind if 2 options', store:'Whole Foods', lastPurchased:'' },
-  { id:'p8', name:'Skirt steak', section:'Protein', frequency:'Occasional', quantity:'1-1.5 pounds', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'p9', name:'Cod (Atlantic)', section:'Protein', frequency:'Occasional', quantity:'1 pound', notes:'Not portioned — whole strip; sub halibut if unavailable', store:'Whole Foods', lastPurchased:'' },
-  { id:'p10', name:'Beef kabob', section:'Protein', frequency:'Rare', quantity:'1', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'p11', name:'Chicken kabob', section:'Protein', frequency:'Rare', quantity:'2', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'p12', name:'Jalapeño chicken sausage', section:'Protein', frequency:'Rare', quantity:'1 package', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'p1', name:'Boneless skinless chicken thighs', section:'Protein', frequency:'Every week', quantity:'1', qtyType:'count', clarifier:'pack', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'p2', name:'Boneless skinless chicken breasts', section:'Protein', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'pack', notes:'Ideally 3 breasts', store:'Whole Foods', lastPurchased:'' },
+  { id:'p3', name:'Bacon', section:'Protein', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'pack', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'p4', name:'Salmon filet', section:'Protein', frequency:'Occasional', quantity:'0.5', qtyType:'lb', clarifier:'', notes:'Ask to remove skin at fish counter', store:'Whole Foods', lastPurchased:'' },
+  { id:'p5', name:'Scallops', section:'Protein', frequency:'Occasional', quantity:'0.5', qtyType:'lb', clarifier:'small', notes:'From fish counter', store:'Whole Foods', lastPurchased:'' },
+  { id:'p6', name:'Shrimp', section:'Protein', frequency:'Occasional', quantity:'0.5', qtyType:'lb', clarifier:'peeled, deveined', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'p7', name:'Boneless pork loin chops', section:'Protein', frequency:'Occasional', quantity:'1', qtyType:'lb', clarifier:'', notes:'The skinnier kind if 2 options', store:'Whole Foods', lastPurchased:'' },
+  { id:'p8', name:'Skirt steak', section:'Protein', frequency:'Occasional', quantity:'1', qtyType:'lb', clarifier:'', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'p9', name:'Cod', section:'Protein', frequency:'Occasional', quantity:'1', qtyType:'lb', clarifier:'Atlantic', notes:'Not portioned — whole strip; sub halibut if unavailable', store:'Whole Foods', lastPurchased:'' },
+  { id:'p10', name:'Beef kabob', section:'Protein', frequency:'Rare', quantity:'1', qtyType:'count', clarifier:'', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'p11', name:'Chicken kabob', section:'Protein', frequency:'Rare', quantity:'2', qtyType:'count', clarifier:'', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'p12', name:'Jalapeño chicken sausage', section:'Protein', frequency:'Rare', quantity:'1', qtyType:'count', clarifier:'package', notes:'', store:'Whole Foods', lastPurchased:'' },
   // Dairy
-  { id:'d1', name:'Whole milk (half gallon)', section:'Dairy', frequency:'Every week', quantity:'1 half gallon', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'d2', name:'Eggs', section:'Dairy', frequency:'Every week', quantity:'1 dozen', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'d3', name:'Butter (unsalted)', section:'Dairy', frequency:'Most weeks', quantity:'1 pack', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'d4', name:'Shredded mexican cheese', section:'Dairy', frequency:'Most weeks', quantity:'1 bag', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'d1', name:'Whole milk', section:'Dairy', frequency:'Every week', quantity:'1', qtyType:'count', clarifier:'half gallon', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'d2', name:'Eggs', section:'Dairy', frequency:'Every week', quantity:'1', qtyType:'count', clarifier:'dozen', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'d3', name:'Butter', section:'Dairy', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'pack, unsalted', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'d4', name:'Shredded mexican cheese', section:'Dairy', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'bag', notes:'', store:'Whole Foods', lastPurchased:'' },
   // Deli
-  { id:'dl1', name:'Yellow american cheese', section:'Deli', frequency:'Most weeks', quantity:'1/4 pound', notes:'From deli counter', store:'Whole Foods', lastPurchased:'' },
-  { id:'dl2', name:'Black Forest ham', section:'Deli', frequency:'Most weeks', quantity:'1 pound', notes:'Sliced thin from deli', store:'Whole Foods', lastPurchased:'' },
-  { id:'dl3', name:'Chicken salad', section:'Deli', frequency:'Most weeks', quantity:'1 medium container', notes:'Classic, from deli', store:'Whole Foods', lastPurchased:'' },
-  { id:'dl4', name:'Oven roasted turkey', section:'Deli', frequency:'Occasional', quantity:'1 pound', notes:'In-house WF; sub peppered roasted if unavailable', store:'Whole Foods', lastPurchased:'' },
+  { id:'dl1', name:'Yellow american cheese', section:'Deli', frequency:'Most weeks', quantity:'0.25', qtyType:'lb', clarifier:'deli counter', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'dl2', name:'Black Forest ham', section:'Deli', frequency:'Most weeks', quantity:'1', qtyType:'lb', clarifier:'sliced thin', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'dl3', name:'Chicken salad', section:'Deli', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'medium container', notes:'Classic, from deli', store:'Whole Foods', lastPurchased:'' },
+  { id:'dl4', name:'Oven roasted turkey', section:'Deli', frequency:'Occasional', quantity:'1', qtyType:'lb', clarifier:'', notes:'In-house WF; sub peppered roasted if unavailable', store:'Whole Foods', lastPurchased:'' },
   // Frozen
-  { id:'fr1', name:'Ice cream cookie sandwiches', section:'Frozen', frequency:'Every week', quantity:'1 box', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'fr2', name:"Jeni's Salted Caramel ice cream", section:'Frozen', frequency:'Most weeks', quantity:'1 pint', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'fr3', name:"Jeni's Blackout Chocolate Cake ice cream", section:'Frozen', frequency:'Occasional', quantity:'1 pint', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'fr4', name:'Frozen mixed berries', section:'Frozen', frequency:'Occasional', quantity:'1 bag', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'fr1', name:'Ice cream cookie sandwiches', section:'Frozen', frequency:'Every week', quantity:'1', qtyType:'count', clarifier:'box', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'fr2', name:"Jeni's Salted Caramel ice cream", section:'Frozen', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'pint', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'fr3', name:"Jeni's Blackout Chocolate Cake ice cream", section:'Frozen', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'pint', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'fr4', name:'Frozen mixed berries', section:'Frozen', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'bag', notes:'', store:'Whole Foods', lastPurchased:'' },
   // Grains & Bread
-  { id:'g1', name:'Sourdough bread (sliced)', section:'Grains & Bread', frequency:'Every week', quantity:'1 loaf', notes:'From bakery', store:'Whole Foods', lastPurchased:'' },
-  { id:'g2', name:'French bread (sliced)', section:'Grains & Bread', frequency:'Most weeks', quantity:'1/2 loaf', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'g3', name:"Nature's Own Brioche buns", section:'Grains & Bread', frequency:'Occasional', quantity:'1 package', notes:'Sub similar if unavailable — let us know', store:'Whole Foods', lastPurchased:'' },
-  { id:'g4', name:'Rolled oats', section:'Grains & Bread', frequency:'Occasional', quantity:'1 bag', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'g5', name:'De Cecco Cavatappi pasta', section:'Grains & Bread', frequency:'Rare', quantity:'1 box', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'g1', name:'Sourdough bread', section:'Grains & Bread', frequency:'Every week', quantity:'1', qtyType:'bread', clarifier:'sliced, from bakery', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'g2', name:'French bread', section:'Grains & Bread', frequency:'Most weeks', quantity:'1', qtyType:'bread', clarifier:'sliced', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'g3', name:"Nature's Own Brioche buns", section:'Grains & Bread', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'package', notes:'Sub similar if unavailable — let us know', store:'Whole Foods', lastPurchased:'' },
+  { id:'g4', name:'Rolled oats', section:'Grains & Bread', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'bag', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'g5', name:'De Cecco Cavatappi pasta', section:'Grains & Bread', frequency:'Rare', quantity:'1', qtyType:'count', clarifier:'box', notes:'', store:'Whole Foods', lastPurchased:'' },
   // Beverages
-  { id:'b1', name:'Spindrift Grapefruit', section:'Beverages', frequency:'Every week', quantity:'1 pack or 3 singles', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'b2', name:'Spindrift Lemon', section:'Beverages', frequency:'Most weeks', quantity:'1-3', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'b3', name:'Spindrift Raspberry/Lime', section:'Beverages', frequency:'Most weeks', quantity:'1-3', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'b4', name:'Topo Chico Lime (bottles)', section:'Beverages', frequency:'Most weeks', quantity:'12-pack', notes:'Sometimes out of stock', store:'Whole Foods', lastPurchased:'' },
-  { id:'b5', name:'Distilled water', section:'Beverages', frequency:'Occasional', quantity:'2 gallons', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'b6', name:'Whole coffee beans', section:'Beverages', frequency:'Occasional', quantity:'1 bag', notes:'Light or medium roast', store:'Whole Foods', lastPurchased:'' },
+  { id:'b1', name:'Spindrift Grapefruit', section:'Beverages', frequency:'Every week', quantity:'3', qtyType:'count', clarifier:'singles or 1 pack', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'b2', name:'Spindrift Lemon', section:'Beverages', frequency:'Most weeks', quantity:'3', qtyType:'count', clarifier:'', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'b3', name:'Spindrift Raspberry/Lime', section:'Beverages', frequency:'Most weeks', quantity:'3', qtyType:'count', clarifier:'', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'b4', name:'Topo Chico Lime', section:'Beverages', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'12-pack', notes:'Sometimes out of stock', store:'Whole Foods', lastPurchased:'' },
+  { id:'b5', name:'Distilled water', section:'Beverages', frequency:'Occasional', quantity:'2', qtyType:'count', clarifier:'gallons', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'b6', name:'Whole coffee beans', section:'Beverages', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'bag', notes:'Light or medium roast', store:'Whole Foods', lastPurchased:'' },
   // Condiments & Pantry
-  { id:'c1', name:'WF Peanut Butter (unsweetened, unsalted)', section:'Condiments & Pantry', frequency:'Most weeks', quantity:'2 jars', notes:'Green top', store:'Whole Foods', lastPurchased:'' },
-  { id:'c2', name:'WF Almond Butter (organic, creamy, unsalted)', section:'Condiments & Pantry', frequency:'Occasional', quantity:'1 jar', notes:'Green top', store:'Whole Foods', lastPurchased:'' },
-  { id:'c3', name:"Rao's Alfredo sauce", section:'Condiments & Pantry', frequency:'Occasional', quantity:'1 jar', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'c4', name:'Sesame & Ginger dressing', section:'Condiments & Pantry', frequency:'Occasional', quantity:'2 bottles', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'c5', name:'Cholula hot sauce', section:'Condiments & Pantry', frequency:'Occasional', quantity:'1 bottle', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'c6', name:'Tomato paste (tube)', section:'Condiments & Pantry', frequency:'Occasional', quantity:'1', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'c7', name:'Diced green chiles', section:'Condiments & Pantry', frequency:'Occasional', quantity:'1 small jar', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'c8', name:'Enchilada sauce', section:'Condiments & Pantry', frequency:'Occasional', quantity:'2 containers', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'c9', name:'Sour cream', section:'Condiments & Pantry', frequency:'Occasional', quantity:'1 small container', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'c10', name:'Crumbled feta', section:'Condiments & Pantry', frequency:'Occasional', quantity:'1 small container', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'c11', name:'Avocado oil spray', section:'Condiments & Pantry', frequency:'Occasional', quantity:'2', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'c12', name:'Low sodium soy sauce', section:'Condiments & Pantry', frequency:'Rare', quantity:'1 bottle', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'c13', name:'Grape oil', section:'Condiments & Pantry', frequency:'Rare', quantity:'1 bottle', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'c14', name:'Maple syrup', section:'Condiments & Pantry', frequency:'Rare', quantity:'1 bottle', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'c1', name:'WF Peanut Butter', section:'Condiments & Pantry', frequency:'Most weeks', quantity:'2', qtyType:'count', clarifier:'jars', notes:'Green top, unsweetened unsalted', store:'Whole Foods', lastPurchased:'' },
+  { id:'c2', name:'WF Almond Butter', section:'Condiments & Pantry', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'jar', notes:'Green top, organic creamy unsalted', store:'Whole Foods', lastPurchased:'' },
+  { id:'c3', name:"Rao's Alfredo sauce", section:'Condiments & Pantry', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'jar', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'c4', name:'Sesame & Ginger dressing', section:'Condiments & Pantry', frequency:'Occasional', quantity:'2', qtyType:'count', clarifier:'bottles', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'c5', name:'Cholula hot sauce', section:'Condiments & Pantry', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'bottle', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'c6', name:'Tomato paste', section:'Condiments & Pantry', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'tube', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'c7', name:'Diced green chiles', section:'Condiments & Pantry', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'small jar', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'c8', name:'Enchilada sauce', section:'Condiments & Pantry', frequency:'Occasional', quantity:'2', qtyType:'count', clarifier:'containers', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'c9', name:'Sour cream', section:'Condiments & Pantry', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'small container', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'c10', name:'Crumbled feta', section:'Condiments & Pantry', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'small container', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'c11', name:'Avocado oil spray', section:'Condiments & Pantry', frequency:'Occasional', quantity:'2', qtyType:'count', clarifier:'', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'c12', name:'Low sodium soy sauce', section:'Condiments & Pantry', frequency:'Rare', quantity:'1', qtyType:'count', clarifier:'bottle', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'c13', name:'Grape oil', section:'Condiments & Pantry', frequency:'Rare', quantity:'1', qtyType:'count', clarifier:'bottle', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'c14', name:'Maple syrup', section:'Condiments & Pantry', frequency:'Rare', quantity:'1', qtyType:'count', clarifier:'bottle', notes:'', store:'Whole Foods', lastPurchased:'' },
   // Snacks
-  { id:'s1', name:'WF Tortilla chips', section:'Snacks', frequency:'Most weeks', quantity:'1 bag', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'s2', name:'Wavy potato chips', section:'Snacks', frequency:'Most weeks', quantity:'1 bag', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'s3', name:"Annie's mixed snack bags", section:'Snacks', frequency:'Most weeks', quantity:'1 package', notes:'Cheddar bunnies + graham crackers variety', store:'Whole Foods', lastPurchased:'' },
-  { id:'s4', name:'Once Upon a Farm tractor wheel bars', section:'Snacks', frequency:'Occasional', quantity:'2-5 boxes', notes:'If on sale, grab 5; otherwise 2', store:'Whole Foods', lastPurchased:'' },
+  { id:'s1', name:'WF Tortilla chips', section:'Snacks', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'bag', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'s2', name:'Wavy potato chips', section:'Snacks', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'bag', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'s3', name:"Annie's mixed snack bags", section:'Snacks', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'package', notes:'Cheddar bunnies + graham crackers variety', store:'Whole Foods', lastPurchased:'' },
+  { id:'s4', name:'Once Upon a Farm tractor wheel bars', section:'Snacks', frequency:'Occasional', quantity:'2', qtyType:'count', clarifier:'boxes', notes:'If on sale, grab 5; otherwise 2', store:'Whole Foods', lastPurchased:'' },
   // Household & Baby
-  { id:'h1', name:'Coterie diapers (size 6)', section:'Household & Baby', frequency:'Most weeks', quantity:'2 packs', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'h2', name:'Wipes (full size packs)', section:'Household & Baby', frequency:'Most weeks', quantity:'1-2 packs', notes:'', store:'Either', lastPurchased:'' },
+  { id:'h1', name:'Coterie diapers', section:'Household & Baby', frequency:'Most weeks', quantity:'2', qtyType:'count', clarifier:'packs, size 6', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'h2', name:'Wipes', section:'Household & Baby', frequency:'Most weeks', quantity:'2', qtyType:'count', clarifier:'packs', notes:'', store:'Either', lastPurchased:'' },
 ];
 
 // ── Boot ──────────────────────────────────────────────────────────────────────
