@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grocery Order</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #1a5c38;
+    --green-light: #e8f5ee;
+    --green-mid: #2d7a4f;
+    --amber: #b45309;
+    --amber-light: #fef3c7;
+    --red: #991b1b;
+    --red-light: #fee2e2;
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-400: #9ca3af;
+    --gray-600: #4b5563;
+    --gray-800: #1f2937;
+    --gray-900: #111827;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #f0f4f1;
+    color: var(--gray-900);
+    min-height: 100vh;
+    padding-bottom: 120px;
+  }
+
+  /* Header */
+  .header {
+    background: var(--green);
+    color: white;
+    padding: 28px 20px 24px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+  }
+  .header-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 26px;
+    font-weight: 400;
+    line-height: 1.1;
+  }
+  .header p {
+    font-size: 13px;
+    opacity: 0.75;
+    margin-top: 3px;
+    font-weight: 300;
+  }
+  .badge-total {
+    background: rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-left: 12px;
+  }
+  .progress-bar-wrap {
+    background: rgba(255,255,255,0.2);
+    border-radius: 4px;
+    height: 4px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    background: white;
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+    width: 0%;
+  }
+
+  /* Loading / Error */
+  .state-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 24px;
+    text-align: center;
+    gap: 16px;
+  }
+  .spinner {
+    width: 36px; height: 36px;
+    border: 3px solid var(--gray-200);
+    border-top-color: var(--green);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .state-screen p { color: var(--gray-600); font-size: 15px; }
+  .retry-btn {
+    margin-top: 8px;
+    padding: 10px 20px;
+    background: var(--green);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  /* Sections */
+  .sections-wrap { padding: 12px 12px 0; }
+
+  .section {
+    background: white;
+    border-radius: var(--radius);
+    margin-bottom: 10px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    cursor: pointer;
+    user-select: none;
+    background: white;
+    transition: background 0.12s;
+  }
+  .section-header:active { background: var(--gray-50); }
+
+  .section-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-emoji {
+    font-size: 18px;
+    line-height: 1;
+  }
+  .section-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--gray-900);
+  }
+  .section-badge {
+    font-size: 11px;
+    font-weight: 600;
+    background: var(--green-light);
+    color: var(--green);
+    border-radius: 20px;
+    padding: 2px 8px;
+    display: none;
+  }
+  .section-badge.visible { display: inline-block; }
+  .section-chevron {
+    color: var(--gray-400);
+    font-size: 13px;
+    transition: transform 0.2s;
+    flex-shrink: 0;
+  }
+  .section-chevron.open { transform: rotate(180deg); }
+
+  .section-divider {
+    height: 1px;
+    background: var(--gray-100);
+    margin: 0 16px;
+  }
+
+  .section-body { display: none; }
+  .section-body.open { display: block; }
+
+  /* Item rows */
+  .item-row {
+    display: grid;
+    grid-template-columns: 22px 1fr auto auto;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 16px;
+    border-bottom: 1px solid var(--gray-100);
+    transition: background 0.1s;
+  }
+  .item-row:last-of-type { border-bottom: none; }
+  .item-row.checked { background: var(--green-light); }
+
+  .checkbox {
+    width: 22px; height: 22px;
+    border: 2px solid var(--gray-300, #d1d5db);
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.12s;
+    background: white;
+  }
+  .checkbox.checked {
+    background: var(--green);
+    border-color: var(--green);
+  }
+  .checkbox.checked::after {
+    content: '';
+    display: block;
+    width: 11px; height: 7px;
+    border-left: 2.5px solid white;
+    border-bottom: 2.5px solid white;
+    transform: rotate(-45deg) translateY(-1px);
+  }
+
+  .item-info { min-width: 0; }
+  .item-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--gray-900);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .item-notes {
+    font-size: 11px;
+    color: var(--gray-400);
+    margin-top: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .item-last {
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+    flex-shrink: 0;
+    color: var(--gray-400);
+  }
+  .item-last.recent { color: #166534; }
+  .item-last.stale { color: var(--red); }
+
+  /* Quantity controls */
+  .qty-controls {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    opacity: 0.3;
+    pointer-events: none;
+    transition: opacity 0.15s;
+    flex-shrink: 0;
+  }
+  .qty-controls.active {
+    opacity: 1;
+    pointer-events: all;
+  }
+  .qty-btn {
+    width: 26px; height: 26px;
+    border: 1px solid var(--gray-200);
+    background: var(--gray-50);
+    font-size: 15px;
+    font-weight: 400;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--gray-600);
+    transition: background 0.1s;
+    line-height: 1;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .qty-btn:first-child { border-radius: 6px 0 0 6px; }
+  .qty-btn:last-child { border-radius: 0 6px 6px 0; }
+  .qty-btn:active { background: var(--gray-200); }
+  .qty-val {
+    min-width: 32px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    border-top: 1px solid var(--gray-200);
+    border-bottom: 1px solid var(--gray-200);
+    height: 26px;
+    display: flex; align-items: center; justify-content: center;
+    background: white;
+    color: var(--gray-800);
+  }
+
+  /* Frequency dot */
+  .freq-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: none;
+  }
+
+  /* Custom item section */
+  .custom-section {
+    border-top: 1px dashed var(--gray-200);
+    padding: 12px 16px;
+    background: var(--gray-50);
+  }
+  .custom-section-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--gray-400);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+  }
+  .custom-item-row {
+    display: grid;
+    grid-template-columns: 1fr 80px 1fr;
+    gap: 6px;
+    margin-bottom: 6px;
+    align-items: center;
+  }
+  .custom-item-row:last-child { margin-bottom: 0; }
+
+  .custom-input {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    padding: 8px 10px;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-sm);
+    background: white;
+    color: var(--gray-900);
+    outline: none;
+    width: 100%;
+    transition: border-color 0.15s;
+  }
+  .custom-input:focus { border-color: var(--green); }
+  .custom-input::placeholder { color: var(--gray-400); }
+
+  .add-custom-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 0;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--green);
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin-top: 6px;
+  }
+  .add-custom-btn:hover { opacity: 0.75; }
+
+  /* Footer / submit */
+  .footer {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: white;
+    border-top: 1px solid var(--gray-200);
+    padding: 12px 16px;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom));
+    box-shadow: 0 -4px 16px rgba(0,0,0,0.08);
+    z-index: 100;
+  }
+  .submit-btn {
+    width: 100%;
+    padding: 15px;
+    background: var(--green);
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.01em;
+  }
+  .submit-btn:active { transform: scale(0.98); opacity: 0.9; }
+  .submit-btn:disabled { background: var(--gray-400); cursor: not-allowed; transform: none; }
+
+  /* Success screen */
+  .success-screen {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 32px;
+    text-align: center;
+    gap: 16px;
+  }
+  .success-screen.visible { display: flex; }
+  .success-icon {
+    width: 72px; height: 72px;
+    background: var(--green-light);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px;
+  }
+  .success-screen h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 26px;
+    font-weight: 400;
+    color: var(--green);
+  }
+  .success-screen p { font-size: 15px; color: var(--gray-600); line-height: 1.6; }
+  .success-summary {
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+    padding: 16px;
+    width: 100%;
+    text-align: left;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+  .success-summary-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--gray-100);
+    color: var(--gray-800);
+  }
+  .success-summary-item:last-child { border-bottom: none; }
+  .success-summary-qty { color: var(--gray-500); font-size: 12px; }
+
+  /* Section icons mapping */
+  .freq-every { color: var(--green); }
+  .freq-most { color: var(--amber); }
+  .freq-occasional { color: var(--gray-400); }
+  .freq-rare { color: var(--gray-300, #d1d5db); }
+
+  @media (min-width: 480px) {
+    .sections-wrap { max-width: 520px; margin: 0 auto; }
+    .footer { padding: 14px; }
+    .footer > * { max-width: 520px; margin: 0 auto; display: block; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div>
+      <h1>Grocery Order</h1>
+      <p id="header-date">Loading...</p>
+    </div>
+    <div class="badge-total" id="badge-total">0 items</div>
+  </div>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" id="progress-bar"></div>
+  </div>
+</div>
+
+
+
+<div id="main-content" style="display:none;">
+  <div class="sections-wrap" id="sections-wrap"></div>
+</div>
+
+<div id="success-screen" class="success-screen">
+  <div class="success-icon">✓</div>
+  <h2>Order submitted!</h2>
+  <p>You'll receive a confirmation email shortly.<br>Leah's list will be ready for tomorrow.</p>
+  <div class="success-summary" id="success-summary"></div>
+</div>
+
+<div class="footer" id="footer">
+  <button class="submit-btn" id="submit-btn" onclick="submitOrder()" disabled>
+    Select items to submit
+  </button>
+</div>
+
+<script src="config.js"></script>
+<script>
+// Webhook URL loaded from config.js (not committed to GitHub)
+// If config.js is missing, submissions will log to console only
+const SUBMIT_WEBHOOK = window.GROCERY_CONFIG?.submitWebhook || '';
+
+const SECTION_CONFIG = [
+  { key: 'Fruits',              emoji: '🍓', label: 'Fruits' },
+  { key: 'Vegetables',          emoji: '🥦', label: 'Vegetables' },
+  { key: 'Protein',             emoji: '🥩', label: 'Protein' },
+  { key: 'Dairy',               emoji: '🥛', label: 'Dairy' },
+  { key: 'Deli',                emoji: '🍖', label: 'Deli' },
+  { key: 'Frozen',              emoji: '🧊', label: 'Frozen' },
+  { key: 'Grains & Bread',      emoji: '🍞', label: 'Grains & Bread' },
+  { key: 'Beverages',           emoji: '🥤', label: 'Beverages' },
+  { key: 'Condiments & Pantry', emoji: '🫙', label: 'Condiments & Pantry' },
+  { key: 'Snacks',              emoji: '🍿', label: 'Snacks' },
+  { key: 'Household & Baby',    emoji: '🏠', label: 'Household & Baby' },
+];
+
+const FREQ_ORDER = { 'Every week': 0, 'Most weeks': 1, 'Occasional': 2, 'Rare': 3 };
+
+let allItems = [];        // raw from Notion/webhook
+let selections = {};      // pageId -> { checked, qty, defaultQty, name }
+let customItems = {};     // sectionKey -> [{name, qty, notes}]
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+function today() {
+  return new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+}
+
+function daysSince(dateStr) {
+  if (!dateStr) return null;
+  const d = new Date(dateStr);
+  if (isNaN(d)) return null;
+  return Math.floor((Date.now() - d.getTime()) / 86400000);
+}
+
+function lastBoughtLabel(dateStr) {
+  const d = daysSince(dateStr);
+  if (d === null) return { text: '', cls: '' };
+  if (d === 0) return { text: 'Today', cls: 'recent' };
+  if (d === 1) return { text: 'Yesterday', cls: 'recent' };
+  if (d <= 7) return { text: `${d}d ago`, cls: 'recent' };
+  if (d <= 14) return { text: `${d}d ago`, cls: '' };
+  return { text: `${d}d ago`, cls: 'stale' };
+}
+
+function updateTotals() {
+  const checked = Object.values(selections).filter(s => s.checked).length;
+  const total = allItems.filter(i => i.store !== 'Jewel').length;
+  document.getElementById('badge-total').textContent =
+    checked === 0 ? '0 items' : `${checked} item${checked !== 1 ? 's' : ''}`;
+  document.getElementById('progress-bar').style.width =
+    total > 0 ? `${Math.min(100, (checked / total) * 100)}%` : '0%';
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = checked === 0;
+  btn.textContent = checked === 0 ? 'Select items to submit' :
+    `Submit ${checked} item${checked !== 1 ? 's' : ''}`;
+}
+
+// ── Data loading ──────────────────────────────────────────────────────────────
+
+function loadItems() {
+  allItems = FALLBACK_ITEMS;
+  buildUI();
+}
+
+// ── UI building ───────────────────────────────────────────────────────────────
+
+function buildUI() {
+  document.getElementById('header-date').textContent = today();
+  document.getElementById('main-content').style.display = 'block';
+
+  const wrap = document.getElementById('sections-wrap');
+  wrap.innerHTML = '';
+
+  // Init selections
+  selections = {};
+  allItems.forEach(item => {
+    selections[item.id] = {
+      checked: false,
+      qty: item.quantity || '1',
+      defaultQty: item.quantity || '1',
+      name: item.name,
+      section: item.section,
+      lastPurchased: item.lastPurchased || null,
+    };
+  });
+
+  // Init custom items
+  customItems = {};
+  SECTION_CONFIG.forEach(s => { customItems[s.key] = []; });
+
+  // Group by section
+  const bySection = {};
+  SECTION_CONFIG.forEach(s => { bySection[s.key] = []; });
+  allItems.forEach(item => {
+    if (bySection[item.section]) bySection[item.section].push(item);
+    else if (bySection['Condiments & Pantry']) bySection['Condiments & Pantry'].push(item);
+  });
+
+  // Sort within each section by frequency
+  SECTION_CONFIG.forEach(sc => {
+    bySection[sc.key].sort((a, b) =>
+      (FREQ_ORDER[a.frequency] ?? 99) - (FREQ_ORDER[b.frequency] ?? 99)
+    );
+  });
+
+  // Render sections
+  SECTION_CONFIG.forEach((sc, idx) => {
+    const items = bySection[sc.key];
+    const el = buildSection(sc, items, idx === 0);
+    wrap.appendChild(el);
+  });
+
+  updateTotals();
+}
+
+function buildSection(sc, items, isOpen) {
+  const sec = document.createElement('div');
+  sec.className = 'section';
+  sec.id = `section-${sc.key.replace(/\W/g, '-')}`;
+
+  // Header
+  const header = document.createElement('div');
+  header.className = 'section-header';
+  header.innerHTML = `
+    <div class="section-title-wrap">
+      <span class="section-emoji">${sc.emoji}</span>
+      <span class="section-name">${sc.label}</span>
+      <span class="section-badge" id="badge-${sc.key.replace(/\W/g, '-')}"></span>
+    </div>
+    <span class="section-chevron ${isOpen ? 'open' : ''}" id="chev-${sc.key.replace(/\W/g, '-')}">▾</span>
+  `;
+  header.onclick = () => toggleSection(sc.key);
+  sec.appendChild(header);
+
+  // Divider + body
+  const divider = document.createElement('div');
+  divider.className = 'section-divider';
+  sec.appendChild(divider);
+
+  const body = document.createElement('div');
+  body.className = `section-body ${isOpen ? 'open' : ''}`;
+  body.id = `body-${sc.key.replace(/\W/g, '-')}`;
+
+  // Item rows
+  items.forEach(item => {
+    const row = buildItemRow(item);
+    body.appendChild(row);
+  });
+
+  // Custom items area
+  const customWrap = document.createElement('div');
+  customWrap.className = 'custom-section';
+  customWrap.id = `custom-${sc.key.replace(/\W/g, '-')}`;
+  customWrap.innerHTML = `
+    <div class="custom-section-label">Anything else from ${sc.label}?</div>
+    <div class="custom-rows" id="custom-rows-${sc.key.replace(/\W/g, '-')}"></div>
+    <button class="add-custom-btn" onclick="addCustomRow('${sc.key}')">
+      + Add item
+    </button>
+  `;
+  body.appendChild(customWrap);
+
+  // Add first custom row by default
+  addCustomRow(sc.key, customWrap.querySelector('.custom-rows'));
+
+  sec.appendChild(body);
+  return sec;
+}
+
+function buildItemRow(item) {
+  const row = document.createElement('div');
+  row.className = 'item-row';
+  row.id = `row-${item.id}`;
+
+  const lb = lastBoughtLabel(item.lastPurchased);
+  const qtyDisplay = item.quantity || '1';
+
+  row.innerHTML = `
+    <div class="checkbox" id="chk-${item.id}" onclick="toggleItem('${item.id}')"></div>
+    <div class="item-info">
+      <div class="item-name">${escHtml(item.name)}</div>
+      ${item.notes ? `<div class="item-notes">${escHtml(item.notes)}</div>` : ''}
+    </div>
+    <div class="qty-controls" id="qty-${item.id}">
+      <button class="qty-btn" onclick="adjQty('${item.id}',-1)">−</button>
+      <div class="qty-val" id="qval-${item.id}">${escHtml(qtyDisplay)}</div>
+      <button class="qty-btn" onclick="adjQty('${item.id}',1)">+</button>
+    </div>
+    <div class="item-last ${lb.cls}" id="last-${item.id}">${lb.text}</div>
+  `;
+  return row;
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Interactions ──────────────────────────────────────────────────────────────
+
+function toggleSection(key) {
+  const safeKey = key.replace(/\W/g, '-');
+  const body = document.getElementById(`body-${safeKey}`);
+  const chev = document.getElementById(`chev-${safeKey}`);
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  chev.classList.toggle('open', !isOpen);
+}
+
+function toggleItem(id) {
+  const sel = selections[id];
+  if (!sel) return;
+  sel.checked = !sel.checked;
+
+  const chk = document.getElementById(`chk-${id}`);
+  const row = document.getElementById(`row-${id}`);
+  const qty = document.getElementById(`qty-${id}`);
+
+  chk.classList.toggle('checked', sel.checked);
+  row.classList.toggle('checked', sel.checked);
+  qty.classList.toggle('active', sel.checked);
+
+  updateSectionBadge(sel.section);
+  updateTotals();
+}
+
+function adjQty(id, delta) {
+  const sel = selections[id];
+  if (!sel || !sel.checked) return;
+
+  // Try numeric adjustment first
+  const current = sel.qty;
+  const num = parseFloat(current);
+  if (!isNaN(num)) {
+    const next = Math.max(1, num + delta);
+    sel.qty = Number.isInteger(next) ? String(next) : next.toFixed(1);
+  } else {
+    // Non-numeric qty — just cycle through simple numbers
+    sel.qty = delta > 0 ? '2' : '1';
+  }
+  document.getElementById(`qval-${id}`).textContent = sel.qty;
+}
+
+function updateSectionBadge(sectionKey) {
+  const safeKey = sectionKey.replace(/\W/g, '-');
+  const badge = document.getElementById(`badge-${safeKey}`);
+  if (!badge) return;
+  const count = Object.values(selections).filter(s => s.checked && s.section === sectionKey).length;
+  badge.textContent = count;
+  badge.classList.toggle('visible', count > 0);
+}
+
+// ── Custom items ──────────────────────────────────────────────────────────────
+
+function addCustomRow(sectionKey, containerEl) {
+  const safeKey = sectionKey.replace(/\W/g, '-');
+  const container = containerEl || document.getElementById(`custom-rows-${safeKey}`);
+  if (!container) return;
+
+  const idx = container.children.length;
+  const rowEl = document.createElement('div');
+  rowEl.className = 'custom-item-row';
+  rowEl.innerHTML = `
+    <input class="custom-input" type="text" placeholder="Item name"
+      oninput="syncCustom('${sectionKey}', ${idx}, 'name', this.value)" />
+    <input class="custom-input" type="text" placeholder="Qty"
+      oninput="syncCustom('${sectionKey}', ${idx}, 'qty', this.value)" />
+    <input class="custom-input" type="text" placeholder="Notes (optional)"
+      oninput="syncCustom('${sectionKey}', ${idx}, 'notes', this.value)" />
+  `;
+  container.appendChild(rowEl);
+
+  // Ensure slot exists
+  if (!customItems[sectionKey]) customItems[sectionKey] = [];
+  customItems[sectionKey][idx] = { name: '', qty: '', notes: '' };
+}
+
+function syncCustom(sectionKey, idx, field, value) {
+  if (!customItems[sectionKey]) customItems[sectionKey] = [];
+  if (!customItems[sectionKey][idx]) customItems[sectionKey][idx] = { name:'', qty:'', notes:'' };
+  customItems[sectionKey][idx][field] = value;
+}
+
+// ── Submit ────────────────────────────────────────────────────────────────────
+
+async function submitOrder() {
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Submitting...';
+
+  // Build payload
+  const selected = Object.entries(selections)
+    .filter(([,s]) => s.checked)
+    .map(([id, s]) => ({
+      notionPageId: id,
+      name: s.name,
+      section: s.section,
+      quantity: s.qty,
+      lastPurchased: new Date().toISOString().slice(0,10)
+    }));
+
+  // Gather non-empty custom items
+  const custom = [];
+  Object.entries(customItems).forEach(([section, rows]) => {
+    rows.forEach(r => {
+      if (r.name && r.name.trim()) {
+        custom.push({
+          name: r.name.trim(),
+          section,
+          quantity: r.qty || '1',
+          notes: r.notes || '',
+          isNew: true
+        });
+      }
+    });
+  });
+
+  const payload = {
+    submittedAt: new Date().toISOString(),
+    sessionDate: today(),
+    selectedItems: selected,
+    customItems: custom,
+    totalItems: selected.length + custom.length
+  };
+
+  try {
+    await fetch(SUBMIT_WEBHOOK, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+  } catch(e) {
+    // Still show success — Zapier may return CORS error on success
+  }
+
+  showSuccess(selected, custom);
+}
+
+function showSuccess(selected, custom) {
+  document.getElementById('main-content').style.display = 'none';
+  document.getElementById('footer').style.display = 'none';
+
+  const screen = document.getElementById('success-screen');
+  screen.classList.add('visible');
+
+  const summary = document.getElementById('success-summary');
+  summary.innerHTML = '';
+
+  const allChosen = [
+    ...selected.map(s => ({ name: s.name, qty: s.quantity, section: s.section })),
+    ...custom.map(c => ({ name: c.name + ' ✦', qty: c.quantity, section: c.section }))
+  ];
+
+  // Group by section for display
+  const grouped = {};
+  allChosen.forEach(item => {
+    if (!grouped[item.section]) grouped[item.section] = [];
+    grouped[item.section].push(item);
+  });
+
+  Object.entries(grouped).forEach(([section, items]) => {
+    const header = document.createElement('div');
+    header.style.cssText = 'font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;padding:6px 0 3px;';
+    header.textContent = section;
+    summary.appendChild(header);
+    items.forEach(item => {
+      const row = document.createElement('div');
+      row.className = 'success-summary-item';
+      row.innerHTML = `<span>${escHtml(item.name)}</span><span class="success-summary-qty">${escHtml(item.qty)}</span>`;
+      summary.appendChild(row);
+    });
+  });
+}
+
+// ── Fallback data (used when webhook not yet configured) ──────────────────────
+
+const FALLBACK_ITEMS = [
+  // Fruits
+  { id:'f1', name:'Bananas', section:'Fruits', frequency:'Every week', quantity:'2-4', notes:'Mix of ripe and firm', store:'Whole Foods', lastPurchased:'' },
+  { id:'f2', name:'Mixed melon (container)', section:'Fruits', frequency:'Every week', quantity:'1 small container', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'f3', name:'Blueberries (jumbo)', section:'Fruits', frequency:'Most weeks', quantity:'1 container', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'f4', name:'Strawberries', section:'Fruits', frequency:'Most weeks', quantity:'1 container', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'f5', name:'Granny Smith apples', section:'Fruits', frequency:'Occasional', quantity:'5-6', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'f6', name:'Grapes (green)', section:'Fruits', frequency:'Occasional', quantity:'1 bag', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'f7', name:'Mango', section:'Fruits', frequency:'Occasional', quantity:'1', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'f8', name:'Limes', section:'Fruits', frequency:'Occasional', quantity:'3-4', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'f9', name:'Lemons', section:'Fruits', frequency:'Occasional', quantity:'3-4', notes:'', store:'Whole Foods', lastPurchased:'' },
+  // Vegetables
+  { id:'v1', name:'Broccoli', section:'Vegetables', frequency:'Most weeks', quantity:'1 head', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'v2', name:'Purple cauliflower', section:'Vegetables', frequency:'Most weeks', quantity:'1 head', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'v3', name:'English cucumber', section:'Vegetables', frequency:'Most weeks', quantity:'1', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'v4', name:'Carrots', section:'Vegetables', frequency:'Most weeks', quantity:'1 bunch', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'v5', name:'Baby yellow potatoes', section:'Vegetables', frequency:'Most weeks', quantity:'1 small bag', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'v6', name:'Avocado', section:'Vegetables', frequency:'Most weeks', quantity:'1-2', notes:'Firm ok if not eating immediately', store:'Whole Foods', lastPurchased:'' },
+  { id:'v7', name:'Red bell pepper', section:'Vegetables', frequency:'Most weeks', quantity:'1-2', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'v8', name:'Red onion', section:'Vegetables', frequency:'Most weeks', quantity:'1', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'v9', name:'Sweet onion', section:'Vegetables', frequency:'Occasional', quantity:'2', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'v10', name:'Iceberg lettuce', section:'Vegetables', frequency:'Occasional', quantity:'1 head', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'v11', name:'Cherry tomatoes', section:'Vegetables', frequency:'Occasional', quantity:'1 small pint', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'v12', name:'Tomatoes (slicing)', section:'Vegetables', frequency:'Occasional', quantity:'2', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'v13', name:'Mushrooms', section:'Vegetables', frequency:'Occasional', quantity:'1 container', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'v14', name:'Snap or snow peas', section:'Vegetables', frequency:'Occasional', quantity:'1 small bag', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'v15', name:'Radishes', section:'Vegetables', frequency:'Occasional', quantity:'1 bunch', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'v16', name:'Scallions', section:'Vegetables', frequency:'Occasional', quantity:'1 bunch', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'v17', name:'Fennel', section:'Vegetables', frequency:'Rare', quantity:'1 large bulb', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'v18', name:'Jalapeño', section:'Vegetables', frequency:'Rare', quantity:'2', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'v19', name:'Corn (ears)', section:'Vegetables', frequency:'Rare', quantity:'4 ears', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'v20', name:'Russet potatoes', section:'Vegetables', frequency:'Rare', quantity:'3', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'v21', name:'Sweet potato', section:'Vegetables', frequency:'Rare', quantity:'1', notes:'The usual one for pancakes', store:'Whole Foods', lastPurchased:'' },
+  // Protein
+  { id:'p1', name:'Boneless skinless chicken thighs', section:'Protein', frequency:'Every week', quantity:'1 pack', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'p2', name:'Boneless skinless chicken breasts', section:'Protein', frequency:'Most weeks', quantity:'1 pack', notes:'Ideally 3 breasts', store:'Whole Foods', lastPurchased:'' },
+  { id:'p3', name:'Bacon', section:'Protein', frequency:'Most weeks', quantity:'1 pack', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'p4', name:'Salmon filet', section:'Protein', frequency:'Occasional', quantity:'1', notes:'Ask to remove skin at fish counter', store:'Whole Foods', lastPurchased:'' },
+  { id:'p5', name:'Scallops (small)', section:'Protein', frequency:'Occasional', quantity:'8 pieces', notes:'From fish counter', store:'Whole Foods', lastPurchased:'' },
+  { id:'p6', name:'Shrimp (peeled, deveined)', section:'Protein', frequency:'Occasional', quantity:'1/2 pound', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'p7', name:'Boneless pork loin chops', section:'Protein', frequency:'Occasional', quantity:'3 chops (~1 lb)', notes:'The skinnier kind if 2 options', store:'Whole Foods', lastPurchased:'' },
+  { id:'p8', name:'Skirt steak', section:'Protein', frequency:'Occasional', quantity:'1-1.5 pounds', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'p9', name:'Cod (Atlantic)', section:'Protein', frequency:'Occasional', quantity:'1 pound', notes:'Not portioned — whole strip; sub halibut if unavailable', store:'Whole Foods', lastPurchased:'' },
+  { id:'p10', name:'Beef kabob', section:'Protein', frequency:'Rare', quantity:'1', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'p11', name:'Chicken kabob', section:'Protein', frequency:'Rare', quantity:'2', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'p12', name:'Jalapeño chicken sausage', section:'Protein', frequency:'Rare', quantity:'1 package', notes:'', store:'Whole Foods', lastPurchased:'' },
+  // Dairy
+  { id:'d1', name:'Whole milk (half gallon)', section:'Dairy', frequency:'Every week', quantity:'1 half gallon', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'d2', name:'Eggs', section:'Dairy', frequency:'Every week', quantity:'1 dozen', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'d3', name:'Butter (unsalted)', section:'Dairy', frequency:'Most weeks', quantity:'1 pack', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'d4', name:'Shredded mexican cheese', section:'Dairy', frequency:'Most weeks', quantity:'1 bag', notes:'', store:'Whole Foods', lastPurchased:'' },
+  // Deli
+  { id:'dl1', name:'Yellow american cheese', section:'Deli', frequency:'Most weeks', quantity:'1/4 pound', notes:'From deli counter', store:'Whole Foods', lastPurchased:'' },
+  { id:'dl2', name:'Black Forest ham', section:'Deli', frequency:'Most weeks', quantity:'1 pound', notes:'Sliced thin from deli', store:'Whole Foods', lastPurchased:'' },
+  { id:'dl3', name:'Chicken salad', section:'Deli', frequency:'Most weeks', quantity:'1 medium container', notes:'Classic, from deli', store:'Whole Foods', lastPurchased:'' },
+  { id:'dl4', name:'Oven roasted turkey', section:'Deli', frequency:'Occasional', quantity:'1 pound', notes:'In-house WF; sub peppered roasted if unavailable', store:'Whole Foods', lastPurchased:'' },
+  // Frozen
+  { id:'fr1', name:'Ice cream cookie sandwiches', section:'Frozen', frequency:'Every week', quantity:'1 box', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'fr2', name:"Jeni's Salted Caramel ice cream", section:'Frozen', frequency:'Most weeks', quantity:'1 pint', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'fr3', name:"Jeni's Blackout Chocolate Cake ice cream", section:'Frozen', frequency:'Occasional', quantity:'1 pint', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'fr4', name:'Frozen mixed berries', section:'Frozen', frequency:'Occasional', quantity:'1 bag', notes:'', store:'Whole Foods', lastPurchased:'' },
+  // Grains & Bread
+  { id:'g1', name:'Sourdough bread (sliced)', section:'Grains & Bread', frequency:'Every week', quantity:'1 loaf', notes:'From bakery', store:'Whole Foods', lastPurchased:'' },
+  { id:'g2', name:'French bread (sliced)', section:'Grains & Bread', frequency:'Most weeks', quantity:'1/2 loaf', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'g3', name:"Nature's Own Brioche buns", section:'Grains & Bread', frequency:'Occasional', quantity:'1 package', notes:'Sub similar if unavailable — let us know', store:'Whole Foods', lastPurchased:'' },
+  { id:'g4', name:'Rolled oats', section:'Grains & Bread', frequency:'Occasional', quantity:'1 bag', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'g5', name:'De Cecco Cavatappi pasta', section:'Grains & Bread', frequency:'Rare', quantity:'1 box', notes:'', store:'Whole Foods', lastPurchased:'' },
+  // Beverages
+  { id:'b1', name:'Spindrift Grapefruit', section:'Beverages', frequency:'Every week', quantity:'1 pack or 3 singles', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'b2', name:'Spindrift Lemon', section:'Beverages', frequency:'Most weeks', quantity:'1-3', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'b3', name:'Spindrift Raspberry/Lime', section:'Beverages', frequency:'Most weeks', quantity:'1-3', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'b4', name:'Topo Chico Lime (bottles)', section:'Beverages', frequency:'Most weeks', quantity:'12-pack', notes:'Sometimes out of stock', store:'Whole Foods', lastPurchased:'' },
+  { id:'b5', name:'Distilled water', section:'Beverages', frequency:'Occasional', quantity:'2 gallons', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'b6', name:'Whole coffee beans', section:'Beverages', frequency:'Occasional', quantity:'1 bag', notes:'Light or medium roast', store:'Whole Foods', lastPurchased:'' },
+  // Condiments & Pantry
+  { id:'c1', name:'WF Peanut Butter (unsweetened, unsalted)', section:'Condiments & Pantry', frequency:'Most weeks', quantity:'2 jars', notes:'Green top', store:'Whole Foods', lastPurchased:'' },
+  { id:'c2', name:'WF Almond Butter (organic, creamy, unsalted)', section:'Condiments & Pantry', frequency:'Occasional', quantity:'1 jar', notes:'Green top', store:'Whole Foods', lastPurchased:'' },
+  { id:'c3', name:"Rao's Alfredo sauce", section:'Condiments & Pantry', frequency:'Occasional', quantity:'1 jar', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'c4', name:'Sesame & Ginger dressing', section:'Condiments & Pantry', frequency:'Occasional', quantity:'2 bottles', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'c5', name:'Cholula hot sauce', section:'Condiments & Pantry', frequency:'Occasional', quantity:'1 bottle', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'c6', name:'Tomato paste (tube)', section:'Condiments & Pantry', frequency:'Occasional', quantity:'1', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'c7', name:'Diced green chiles', section:'Condiments & Pantry', frequency:'Occasional', quantity:'1 small jar', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'c8', name:'Enchilada sauce', section:'Condiments & Pantry', frequency:'Occasional', quantity:'2 containers', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'c9', name:'Sour cream', section:'Condiments & Pantry', frequency:'Occasional', quantity:'1 small container', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'c10', name:'Crumbled feta', section:'Condiments & Pantry', frequency:'Occasional', quantity:'1 small container', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'c11', name:'Avocado oil spray', section:'Condiments & Pantry', frequency:'Occasional', quantity:'2', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'c12', name:'Low sodium soy sauce', section:'Condiments & Pantry', frequency:'Rare', quantity:'1 bottle', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'c13', name:'Grape oil', section:'Condiments & Pantry', frequency:'Rare', quantity:'1 bottle', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'c14', name:'Maple syrup', section:'Condiments & Pantry', frequency:'Rare', quantity:'1 bottle', notes:'', store:'Whole Foods', lastPurchased:'' },
+  // Snacks
+  { id:'s1', name:'WF Tortilla chips', section:'Snacks', frequency:'Most weeks', quantity:'1 bag', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'s2', name:'Wavy potato chips', section:'Snacks', frequency:'Most weeks', quantity:'1 bag', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'s3', name:"Annie's mixed snack bags", section:'Snacks', frequency:'Most weeks', quantity:'1 package', notes:'Cheddar bunnies + graham crackers variety', store:'Whole Foods', lastPurchased:'' },
+  { id:'s4', name:'Once Upon a Farm tractor wheel bars', section:'Snacks', frequency:'Occasional', quantity:'2-5 boxes', notes:'If on sale, grab 5; otherwise 2', store:'Whole Foods', lastPurchased:'' },
+  // Household & Baby
+  { id:'h1', name:'Coterie diapers (size 6)', section:'Household & Baby', frequency:'Most weeks', quantity:'2 packs', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'h2', name:'Wipes (full size packs)', section:'Household & Baby', frequency:'Most weeks', quantity:'1-2 packs', notes:'', store:'Either', lastPurchased:'' },
+];
+
+// ── Boot ──────────────────────────────────────────────────────────────────────
+loadItems();
+
+</script>
+</body>
+</html>
