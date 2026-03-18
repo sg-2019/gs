@@ -3,733 +3,878 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Grocery Order</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<title>Grocery Order — The Daveys</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --green: #1a5c38;
-    --green-light: #e8f5ee;
-    --green-mid: #2d7a4f;
-    --amber: #b45309;
-    --amber-light: #fef3c7;
-    --red: #991b1b;
-    --red-light: #fee2e2;
-    --gray-50: #f9fafb;
-    --gray-100: #f3f4f6;
-    --gray-200: #e5e7eb;
-    --gray-400: #9ca3af;
-    --gray-600: #4b5563;
-    --gray-800: #1f2937;
-    --gray-900: #111827;
-    --radius: 12px;
-    --radius-sm: 8px;
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: #f0f4f1;
-    color: var(--gray-900);
-    min-height: 100vh;
-    padding-bottom: 120px;
-  }
-
-  /* Header */
-  .header {
-    background: var(--green);
-    color: white;
-    padding: 28px 20px 24px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
-  }
-  .header-top {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    margin-bottom: 14px;
-  }
-  .header h1 {
-    font-family: 'DM Serif Display', serif;
-    font-size: 26px;
-    font-weight: 400;
-    line-height: 1.1;
-  }
-  .header p {
-    font-size: 13px;
-    opacity: 0.75;
-    margin-top: 3px;
-    font-weight: 300;
-  }
-  .badge-total {
-    background: rgba(255,255,255,0.18);
-    border: 1px solid rgba(255,255,255,0.3);
-    border-radius: 20px;
-    padding: 5px 12px;
-    font-size: 13px;
-    font-weight: 500;
-    white-space: nowrap;
-    flex-shrink: 0;
-    margin-left: 12px;
-  }
-  .progress-bar-wrap {
-    background: rgba(255,255,255,0.2);
-    border-radius: 4px;
-    height: 4px;
-    overflow: hidden;
-  }
-  .progress-bar-fill {
-    background: white;
-    height: 100%;
-    border-radius: 4px;
-    transition: width 0.3s ease;
-    width: 0%;
-  }
-
-  /* Loading / Error */
-  .state-screen {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 80px 24px;
-    text-align: center;
-    gap: 16px;
-  }
-  .spinner {
-    width: 36px; height: 36px;
-    border: 3px solid var(--gray-200);
-    border-top-color: var(--green);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .state-screen p { color: var(--gray-600); font-size: 15px; }
-  .retry-btn {
-    margin-top: 8px;
-    padding: 10px 20px;
-    background: var(--green);
-    color: white;
-    border: none;
-    border-radius: var(--radius-sm);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-  }
-
-  /* Sections */
-  .sections-wrap { padding: 12px 12px 0; }
-
-  .section {
-    background: white;
-    border-radius: var(--radius);
-    margin-bottom: 10px;
-    overflow: hidden;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-  }
-
-  .section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 14px 16px;
-    cursor: pointer;
-    user-select: none;
-    background: white;
-    transition: background 0.12s;
-  }
-  .section-header:active { background: var(--gray-50); }
-
-  .section-title-wrap {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .section-emoji {
-    font-size: 18px;
-    line-height: 1;
-  }
-  .section-name {
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--gray-900);
-  }
-  .section-badge {
-    font-size: 11px;
-    font-weight: 600;
-    background: var(--green-light);
-    color: var(--green);
-    border-radius: 20px;
-    padding: 2px 8px;
-    display: none;
-  }
-  .section-badge.visible { display: inline-block; }
-  .section-chevron {
-    color: var(--gray-400);
-    font-size: 13px;
-    transition: transform 0.2s;
-    flex-shrink: 0;
-  }
-  .section-chevron.open { transform: rotate(180deg); }
-
-  .section-divider {
-    height: 1px;
-    background: var(--gray-100);
-    margin: 0 16px;
-  }
-
-  .section-body { display: none; }
-  .section-body.open { display: block; }
-
-  /* Item rows */
-  .item-row {
-    display: grid;
-    grid-template-columns: 22px 1fr auto auto;
-    align-items: center;
-    gap: 10px;
-    padding: 11px 16px;
-    border-bottom: 1px solid var(--gray-100);
-    transition: background 0.1s;
-  }
-  .item-row:last-of-type { border-bottom: none; }
-  .item-row.checked { background: var(--green-light); }
-
-  .checkbox {
-    width: 22px; height: 22px;
-    border: 2px solid var(--gray-300, #d1d5db);
-    border-radius: 6px;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-    transition: all 0.12s;
-    background: white;
-  }
-  .checkbox.checked {
-    background: var(--green);
-    border-color: var(--green);
-  }
-  .checkbox.checked::after {
-    content: '';
-    display: block;
-    width: 11px; height: 7px;
-    border-left: 2.5px solid white;
-    border-bottom: 2.5px solid white;
-    transform: rotate(-45deg) translateY(-1px);
-  }
-
-  .item-info { min-width: 0; }
-  .item-name {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--gray-900);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .item-notes {
-    font-size: 11px;
-    color: var(--gray-400);
-    margin-top: 1px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .item-last {
-    font-size: 11px;
-    font-weight: 500;
-    white-space: nowrap;
-    flex-shrink: 0;
-    color: var(--gray-400);
-  }
-  .item-last.recent { color: #166534; }
-  .item-last.stale { color: var(--red); }
-
-  /* Quantity controls */
-  .qty-controls {
-    display: flex;
-    align-items: center;
-    gap: 0;
-    opacity: 0.3;
-    pointer-events: none;
-    transition: opacity 0.15s;
-    flex-shrink: 0;
-  }
-  .qty-controls.active {
-    opacity: 1;
-    pointer-events: all;
-  }
-  .qty-btn {
-    width: 26px; height: 26px;
-    border: 1px solid var(--gray-200);
-    background: var(--gray-50);
-    font-size: 15px;
-    font-weight: 400;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    color: var(--gray-600);
-    transition: background 0.1s;
-    line-height: 1;
-    font-family: 'DM Sans', sans-serif;
-  }
-  .qty-btn:first-child { border-radius: 6px 0 0 6px; }
-  .qty-btn:last-child { border-radius: 0 6px 6px 0; }
-  .qty-btn:active { background: var(--gray-200); }
-  .qty-val {
-    min-width: 32px;
-    text-align: center;
-    font-size: 13px;
-    font-weight: 600;
-    border-top: 1px solid var(--gray-200);
-    border-bottom: 1px solid var(--gray-200);
-    height: 26px;
-    display: flex; align-items: center; justify-content: center;
-    background: white;
-    color: var(--gray-800);
-  }
-
-  /* Frequency dot */
-  .freq-dot {
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    flex-shrink: 0;
-    display: none;
-  }
-
-  /* Custom item section */
-  .custom-section {
-    border-top: 1px dashed var(--gray-200);
-    padding: 12px 16px;
-    background: var(--gray-50);
-  }
-  .custom-section-label {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--gray-400);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    margin-bottom: 10px;
-  }
-  .custom-item-row {
-    display: grid;
-    grid-template-columns: 1fr 80px 1fr;
-    gap: 6px;
-    margin-bottom: 6px;
-    align-items: center;
-  }
-  .custom-item-row:last-child { margin-bottom: 0; }
-
-  .custom-input {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    padding: 8px 10px;
-    border: 1px solid var(--gray-200);
-    border-radius: var(--radius-sm);
-    background: white;
-    color: var(--gray-900);
-    outline: none;
-    width: 100%;
-    transition: border-color 0.15s;
-  }
-  .custom-input:focus { border-color: var(--green); }
-  .custom-input::placeholder { color: var(--gray-400); }
-
-  .add-custom-btn {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 7px 0;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--green);
-    background: none;
-    border: none;
-    cursor: pointer;
-    margin-top: 6px;
-  }
-  .add-custom-btn:hover { opacity: 0.75; }
-
-  /* Footer / submit */
-  .footer {
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    background: white;
-    border-top: 1px solid var(--gray-200);
-    padding: 12px 16px;
-    padding-bottom: calc(12px + env(safe-area-inset-bottom));
-    box-shadow: 0 -4px 16px rgba(0,0,0,0.08);
-    z-index: 100;
-  }
-  .submit-btn {
-    width: 100%;
-    padding: 15px;
-    background: var(--green);
-    color: white;
-    border: none;
-    border-radius: var(--radius);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.15s;
-    letter-spacing: 0.01em;
-  }
-  .submit-btn:active { transform: scale(0.98); opacity: 0.9; }
-  .submit-btn:disabled { background: var(--gray-400); cursor: not-allowed; transform: none; }
-
-  /* Success screen */
-  .success-screen {
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 80px 32px;
-    text-align: center;
-    gap: 16px;
-  }
-  .success-screen.visible { display: flex; }
-  .success-icon {
-    width: 72px; height: 72px;
-    background: var(--green-light);
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 32px;
-  }
-  .success-screen h2 {
-    font-family: 'DM Serif Display', serif;
-    font-size: 26px;
-    font-weight: 400;
-    color: var(--green);
-  }
-  .success-screen p { font-size: 15px; color: var(--gray-600); line-height: 1.6; }
-  .success-summary {
-    background: var(--gray-50);
-    border: 1px solid var(--gray-200);
-    border-radius: var(--radius);
-    padding: 16px;
-    width: 100%;
-    text-align: left;
-    max-height: 300px;
-    overflow-y: auto;
-  }
-  .success-summary-item {
-    display: flex;
-    justify-content: space-between;
-    font-size: 13px;
-    padding: 4px 0;
-    border-bottom: 1px solid var(--gray-100);
-    color: var(--gray-800);
-  }
-  .success-summary-item:last-child { border-bottom: none; }
-  .success-summary-qty { color: var(--gray-500); font-size: 12px; }
-
-  /* Section icons mapping */
-  .freq-every { color: var(--green); }
-  .freq-most { color: var(--amber); }
-  .freq-occasional { color: var(--gray-400); }
-  .freq-rare { color: var(--gray-300, #d1d5db); }
-
-  .skip-bar {
-  margin: 10px 12px 0;
-  background: white;
-  border-radius: var(--radius);
-  border: 1.5px solid var(--gray-200);
-  overflow: hidden;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+:root {
+  --green: #1a5c38;
+  --green-light: #e8f5ee;
+  --green-mid: #2d7a4f;
+  --green-dark: #0f3d24;
+  --amber: #b45309;
+  --amber-light: #fef3c7;
+  --red: #991b1b;
+  --red-light: #fee2e2;
+  --blue: #1a56b0;
+  --blue-light: #eff6ff;
+  --purple: #6d28d9;
+  --purple-light: #f5f3ff;
+  --teal: #0f766e;
+  --teal-light: #f0fdfa;
+  --blue-light: #eff6ff;
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-xs: 6px;
+  --shadow: 0 1px 4px rgba(0,0,0,0.06);
 }
-.skip-btn {
-  width: 100%;
-  padding: 14px 16px;
-  background: white;
-  border: none;
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
   font-family: 'DM Sans', sans-serif;
-  font-size: 14px;
+  background: #f0f4f1;
+  color: var(--gray-900);
+  min-height: 100vh;
+  padding-bottom: 120px;
+}
+
+/* ── HEADER ── */
+.app-header {
+  background: var(--green);
+  color: white;
+  padding: 20px 20px 0;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.18);
+}
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.header-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+.header-date {
+  font-size: 12px;
+  opacity: 0.65;
+  font-weight: 300;
+  margin-top: 1px;
+}
+.header-badge {
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 12px;
   font-weight: 500;
-  color: var(--gray-600);
+}
+
+/* ── TABS ── */
+.tabs {
+  display: flex;
+  gap: 2px;
+}
+.tab {
+  flex: 1;
+  padding: 10px 8px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
+  border-radius: var(--radius-xs) var(--radius-xs) 0 0;
+  transition: all 0.15s;
+  color: rgba(255,255,255,0.65);
+  border-bottom: 2px solid transparent;
+  letter-spacing: 0.01em;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  transition: background 0.12s;
+  gap: 5px;
 }
-.skip-btn:hover { background: var(--gray-50); }
-.skip-btn:active { background: var(--gray-100); }
-.skip-icon {
-  width: 18px; height: 18px;
+.tab.active {
+  color: white;
+  border-bottom-color: white;
+  background: rgba(255,255,255,0.1);
+}
+.tab-dot {
+  width: 6px; height: 6px;
   border-radius: 50%;
-  border: 1.5px solid var(--gray-400);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 11px;
-  color: var(--gray-400);
+  background: #4ade80;
+  display: none;
   flex-shrink: 0;
 }
+.tab-dot.visible { display: block; }
 
-.notes-bar {
-  margin: 10px 12px 0;
+/* ── TAB PANELS ── */
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ── SECTIONS ── */
+.wrap { padding: 10px 10px 0; max-width: 540px; margin: 0 auto; }
+
+.card {
   background: white;
   border-radius: var(--radius);
-  border: 0.5px solid var(--gray-200);
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-  padding: 14px 16px;
+  margin-bottom: 8px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
 }
-.notes-bar-label {
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.1s;
+}
+.card-header:active { background: var(--gray-50); }
+.card-header-left {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.card-emoji { font-size: 16px; flex-shrink: 0; }
+.card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gray-900);
+}
+.card-subtitle {
+  font-size: 11px;
+  color: var(--gray-400);
+  margin-top: 1px;
+}
+.card-badge {
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--green-light);
+  color: var(--green);
+  border-radius: 20px;
+  padding: 2px 8px;
+  display: none;
+}
+.card-badge.visible { display: inline-block; }
+.card-chevron {
+  color: var(--gray-400);
+  font-size: 12px;
+  transition: transform 0.2s;
+  flex-shrink: 0;
+  margin-left: 8px;
+}
+.card-chevron.open { transform: rotate(180deg); }
+.card-divider { height: 1px; background: var(--gray-100); margin: 0 16px; }
+.card-body { display: none; padding: 14px 16px; }
+.card-body.open { display: block; }
+
+/* ── FORM ELEMENTS ── */
+.field { margin-bottom: 14px; }
+.field:last-child { margin-bottom: 0; }
+.label {
+  display: block;
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: .06em;
-  color: var(--gray-400);
-  margin-bottom: 8px;
+  letter-spacing: .07em;
+  color: var(--gray-500);
+  margin-bottom: 6px;
 }
-.notes-textarea {
+.input, .textarea, .select-input {
   width: 100%;
   font-family: 'DM Sans', sans-serif;
   font-size: 14px;
-  padding: 10px 12px;
-  border: 0.5px solid var(--gray-200);
+  padding: 9px 12px;
+  border: 1px solid var(--gray-200);
   border-radius: var(--radius-sm);
   background: var(--gray-50);
   color: var(--gray-900);
   outline: none;
-  resize: none;
-  min-height: 72px;
-  line-height: 1.5;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, background 0.15s;
 }
-.notes-textarea:focus { border-color: var(--green); background: white; }
-.notes-textarea::placeholder { color: var(--gray-400); }
+.input:focus, .textarea:focus, .select-input:focus {
+  border-color: var(--green);
+  background: white;
+}
+.input::placeholder, .textarea::placeholder { color: var(--gray-400); }
+.textarea { resize: none; min-height: 72px; line-height: 1.5; }
+.select-input { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%239ca3af' d='M6 8L0 0h12z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 30px; }
 
-@media (min-width: 480px) {
-    .sections-wrap { max-width: 520px; margin: 0 auto; }
-    .footer { padding: 14px; }
-    .footer > * { max-width: 520px; margin: 0 auto; display: block; }
-  }
+/* ── TOGGLE BUTTONS ── */
+.toggle-group {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.toggle-btn {
+  padding: 7px 14px;
+  border-radius: 20px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  border: 1.5px solid var(--gray-200);
+  background: white;
+  color: var(--gray-600);
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.toggle-btn.active {
+  border-color: var(--green);
+  background: var(--green-light);
+  color: var(--green);
+}
+.toggle-btn.active-blue {
+  border-color: var(--blue);
+  background: var(--blue-light);
+  color: var(--blue);
+}
+.toggle-btn.active-red {
+  border-color: var(--red);
+  background: var(--red-light);
+  color: var(--red);
+}
+
+/* ── TASK CHECKBOXES ── */
+.task-list { display: flex; flex-direction: column; gap: 1px; }
+.task-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--gray-100);
+  transition: background 0.08s;
+}
+.task-row:last-child { border-bottom: none; }
+.task-row.checked { background: var(--green-light); border-radius: var(--radius-xs); padding: 8px 6px; }
+.task-checkbox {
+  width: 20px; height: 20px;
+  border: 2px solid var(--gray-300);
+  border-radius: 5px;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: all 0.12s;
+  margin-top: 1px;
+}
+.task-checkbox.checked {
+  background: var(--green);
+  border-color: var(--green);
+}
+.task-checkbox.checked::after {
+  content: '';
+  display: block;
+  width: 10px; height: 6px;
+  border-left: 2px solid white;
+  border-bottom: 2px solid white;
+  transform: rotate(-45deg) translateY(-1px);
+}
+.task-info { flex: 1; min-width: 0; }
+.task-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gray-800);
+  line-height: 1.4;
+}
+.task-note {
+  font-size: 11px;
+  color: var(--gray-400);
+  margin-top: 2px;
+  line-height: 1.4;
+}
+.task-default-badge {
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  padding: 2px 5px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.badge-everyday { background: #e8f5ee; color: var(--green); }
+.badge-tuesday  { background: #eff6ff; color: var(--blue); }
+.badge-thursday { background: #f5f3ff; color: var(--purple); }
+
+/* ── SUBSECTION HEADERS ── */
+.subsection-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--gray-400);
+  margin: 12px 0 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.subsection-label:first-child { margin-top: 0; }
+.subsection-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--gray-100);
+}
+
+/* ── CUSTOM ITEM ROWS ── */
+.custom-section {
+  border-top: 1px dashed var(--gray-200);
+  padding: 10px 0 0;
+  margin-top: 8px;
+}
+.custom-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--gray-400);
+  margin-bottom: 8px;
+}
+.custom-row {
+  display: grid;
+  grid-template-columns: 1fr 70px;
+  gap: 5px;
+  margin-bottom: 5px;
+}
+.custom-row-3 {
+  display: grid;
+  grid-template-columns: 1fr 70px 1fr;
+  gap: 5px;
+  margin-bottom: 5px;
+}
+.add-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 0;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--green);
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-top: 4px;
+}
+.add-btn:hover { opacity: 0.7; }
+
+/* ── NUMBER STEPPER ── */
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: white;
+  height: 36px;
+}
+.step-btn {
+  width: 32px;
+  height: 100%;
+  border: none;
+  background: var(--gray-50);
+  font-size: 15px;
+  font-weight: 400;
+  cursor: pointer;
+  color: var(--gray-600);
+  transition: background 0.1s;
+  font-family: 'DM Sans', sans-serif;
+  flex-shrink: 0;
+}
+.step-btn:active { background: var(--gray-200); }
+.step-val {
+  flex: 1;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray-800);
+  min-width: 40px;
+  border-left: 1px solid var(--gray-200);
+  border-right: 1px solid var(--gray-200);
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── DC GRID ── */
+.dc-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 10px;
+}
+.dc-item { text-align: center; }
+.dc-item-label {
+  font-size: 10px;
+  color: var(--gray-500);
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+/* ── GROCERY SECTION (from existing app) ── */
+.item-row {
+  display: grid;
+  grid-template-columns: 20px 1fr auto auto;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--gray-100);
+}
+.item-row:last-child { border-bottom: none; }
+.item-row.checked { background: var(--green-light); border-radius: var(--radius-xs); padding: 9px 6px; }
+.checkbox {
+  width: 20px; height: 20px;
+  border: 2px solid var(--gray-300);
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.12s;
+}
+.checkbox.checked { background: var(--green); border-color: var(--green); }
+.checkbox.checked::after {
+  content: '';
+  display: block;
+  width: 10px; height: 6px;
+  border-left: 2px solid white;
+  border-bottom: 2px solid white;
+  transform: rotate(-45deg) translateY(-1px);
+}
+.item-info { min-width: 0; }
+.item-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gray-900);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.item-notes-small { font-size: 11px; color: var(--gray-400); margin-top: 1px; }
+.item-last { font-size: 10px; font-weight: 500; white-space: nowrap; flex-shrink: 0; color: var(--gray-400); }
+.item-last.recent { color: #166534; }
+.item-last.stale { color: var(--red); }
+.qty-controls {
+  display: flex; align-items: center;
+  opacity: 0.35; pointer-events: none;
+  transition: opacity 0.12s;
+  flex-shrink: 0;
+}
+.qty-controls.active { opacity: 1; pointer-events: all; }
+.qty-btn {
+  width: 24px; height: 24px;
+  border: 1px solid var(--gray-200);
+  background: var(--gray-50);
+  font-size: 14px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--gray-600);
+  font-family: 'DM Sans', sans-serif;
+}
+.qty-btn:first-child { border-radius: 5px 0 0 5px; }
+.qty-btn:last-child { border-radius: 0 5px 5px 0; }
+.qty-val {
+  min-width: 30px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  border-top: 1px solid var(--gray-200);
+  border-bottom: 1px solid var(--gray-200);
+  height: 24px;
+  display: flex; align-items: center; justify-content: center;
+  background: white;
+  color: var(--gray-800);
+}
+
+/* ── SKIP BAR ── */
+.skip-bar {
+  background: white;
+  border-radius: var(--radius);
+  margin-bottom: 8px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.skip-btn {
+  width: 100%;
+  padding: 13px 16px;
+  background: white;
+  border: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gray-500);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  gap: 7px;
+}
+.skip-btn:hover { background: var(--gray-50); }
+
+/* ── NOTES BAR ── */
+.notes-bar {
+  background: white;
+  border-radius: var(--radius);
+  margin-bottom: 8px;
+  padding: 14px 16px;
+  box-shadow: var(--shadow);
+}
+.notes-bar-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--gray-400);
+  margin-bottom: 7px;
+}
+
+/* ── FOOTER ── */
+.footer {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: white;
+  border-top: 1px solid var(--gray-200);
+  padding: 12px 16px;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom));
+  box-shadow: 0 -4px 16px rgba(0,0,0,0.08);
+  z-index: 100;
+}
+.footer-inner { max-width: 540px; margin: 0 auto; }
+.submit-btn {
+  width: 100%;
+  padding: 14px;
+  background: var(--green);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.submit-btn:active { transform: scale(0.98); }
+.submit-btn:disabled { background: var(--gray-400); cursor: not-allowed; transform: none; }
+.submit-btn.session-btn { background: var(--blue); }
+.submit-btn.session-btn:disabled { background: var(--gray-400); }
+
+/* ── BOTH SUBMITTED BANNER ── */
+.ready-banner {
+  display: none;
+  background: #022c22;
+  color: white;
+  padding: 10px 16px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  animation: slideDown 0.3s ease;
+}
+.ready-banner.visible { display: block; }
+@keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.ready-banner span { opacity: 0.7; font-size: 11px; margin-left: 6px; }
+
+/* ── SUCCESS SCREEN ── */
+.success-screen {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  padding: 60px 28px;
+  text-align: center;
+  gap: 14px;
+}
+.success-screen.visible { display: flex; }
+.success-icon {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px;
+}
+.success-icon.green { background: var(--green-light); }
+.success-icon.blue { background: var(--blue-light); }
+.success-screen h2 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 24px;
+  font-weight: 400;
+}
+.success-screen p { font-size: 14px; color: var(--gray-500); line-height: 1.6; max-width: 280px; }
+.success-summary {
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius);
+  padding: 14px;
+  width: 100%;
+  text-align: left;
+  max-height: 260px;
+  overflow-y: auto;
+}
+.success-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  padding: 3px 0;
+  border-bottom: 1px solid var(--gray-100);
+  color: var(--gray-700);
+}
+.success-row:last-child { border-bottom: none; }
+.success-sec {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--gray-400);
+  padding: 6px 0 2px;
+}
+
+/* ── DAY TOGGLE ── */
+.day-toggle-wrap {
+  padding: 10px 10px 0;
+  max-width: 540px;
+  margin: 0 auto;
+}
+.day-toggle {
+  background: white;
+  border-radius: var(--radius);
+  padding: 10px;
+  display: flex;
+  gap: 6px;
+  box-shadow: var(--shadow);
+  margin-bottom: 8px;
+}
+.day-btn {
+  flex: 1;
+  padding: 9px;
+  border-radius: var(--radius-sm);
+  border: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  background: var(--gray-50);
+  color: var(--gray-500);
+}
+.day-btn.active {
+  background: var(--blue);
+  color: white;
+}
+
+/* ── PROGRESS BAR ── */
+.progress-bar-wrap { background: rgba(255,255,255,0.2); border-radius: 4px; height: 3px; overflow: hidden; }
+.progress-bar-fill { background: white; height: 100%; border-radius: 4px; transition: width 0.3s; width: 0%; }
+
+/* Responsive */
+@media (min-width: 560px) {
+  .wrap, .day-toggle-wrap { padding-left: 0; padding-right: 0; }
+  .footer { padding: 14px; }
+}
 </style>
 </head>
 <body>
 
-<div class="header">
+<div class="app-header">
   <div class="header-top">
     <div>
-      <h1>Grocery Order</h1>
-      <p id="header-date">Loading...</p>
+      <div class="header-title">Grocery Order</div>
+      <div class="header-date" id="header-date"></div>
     </div>
-    <div class="badge-total" id="badge-total">0 items</div>
+    <div class="header-badge" id="header-badge">0 items</div>
   </div>
   <div class="progress-bar-wrap">
     <div class="progress-bar-fill" id="progress-bar"></div>
   </div>
 </div>
 
-
-
-<div id="main-content" style="display:none;">
-  <div class="skip-bar">
-    <button class="skip-btn" onclick="skipGroceries()">
-      <span class="skip-icon">✕</span>
-      No groceries today
-    </button>
+<div id="grocery-main">
+  <div class="wrap">
+    <div class="skip-bar">
+      <button class="skip-btn" onclick="skipGroceries()">
+        <span style="width:16px;height:16px;border-radius:50%;border:1.5px solid var(--gray-400);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--gray-400);flex-shrink:0;">✕</span>
+        No groceries today
+      </button>
+    </div>
+    <div class="notes-bar">
+      <div class="notes-bar-label">Notes for Leah</div>
+      <textarea class="textarea" id="grocery-notes" placeholder="Any special instructions, reminders, or notes for this order..." style="min-height:56px;"></textarea>
+    </div>
+    <div id="grocery-sections"></div>
   </div>
-  <div class="notes-bar">
-    <div class="notes-bar-label">Notes for Leah</div>
-    <textarea class="notes-textarea" id="order-notes" placeholder="Any special instructions, reminders, or notes for this order..."></textarea>
-  </div>
-  <div class="sections-wrap" id="sections-wrap"></div>
 </div>
 
-<div id="success-screen" class="success-screen">
-  <div class="success-icon">✓</div>
+<div class="success-screen" id="grocery-success">
+  <div class="success-icon green">✓</div>
   <h2>Order submitted!</h2>
-  <p>You'll receive a confirmation email shortly.<br>Leah's list will be ready for tomorrow.</p>
-  <div class="success-summary" id="success-summary"></div>
+  <p>You'll receive a confirmation email shortly. Leah's list will be ready for tomorrow.</p>
+  <div class="success-summary" id="grocery-summary"></div>
 </div>
 
 <div class="footer" id="footer">
-  <button class="submit-btn" id="submit-btn" onclick="submitOrder()" disabled>
-    Select items to submit
-  </button>
+  <div class="footer-inner">
+    <button class="submit-btn green" id="grocery-submit-btn" onclick="submitGrocery()" disabled>Select items to submit</button>
+  </div>
 </div>
 
-<script src="config.js"></script>
 <script>
-// Webhook URL read from URL parameter ?hook=... so it never touches GitHub
+// ─────────────────────────────────────────────────────────────────────────────
+// CONFIG
+// ─────────────────────────────────────────────────────────────────────────────
 const params = new URLSearchParams(window.location.search);
-const SUBMIT_WEBHOOK = params.get('hook') || window.GROCERY_CONFIG?.submitWebhook || '';
+const GROCERY_WEBHOOK = params.get('hook') || '';
 
-const SECTION_CONFIG = [
-  { key: 'Fruits',              emoji: '🍓', label: 'Fruits' },
-  { key: 'Vegetables',          emoji: '🥦', label: 'Vegetables' },
-  { key: 'Protein',             emoji: '🥩', label: 'Protein' },
-  { key: 'Dairy',               emoji: '🥛', label: 'Dairy' },
-  { key: 'Deli',                emoji: '🍖', label: 'Deli' },
-  { key: 'Frozen',              emoji: '🧊', label: 'Frozen' },
-  { key: 'Grains & Bread',      emoji: '🍞', label: 'Grains & Bread' },
-  { key: 'Beverages',           emoji: '🥤', label: 'Beverages' },
-  { key: 'Condiments & Pantry', emoji: '🫙', label: 'Condiments & Pantry' },
-  { key: 'Snacks',              emoji: '🍿', label: 'Snacks' },
-  { key: 'Household & Baby',    emoji: '🏠', label: 'Household & Baby' },
-];
+// ─────────────────────────────────────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────────────────────────────────────
+let selections = {};
+let customItems = {};
+let currentDay = 'Tuesday';
 
-const FREQ_ORDER = { 'Every week': 0, 'Most weeks': 1, 'Occasional': 2, 'Rare': 3 };
-
-let allItems = [];        // raw from Notion/webhook
-let selections = {};      // pageId -> { checked, qty, defaultQty, name }
-let customItems = {};     // sectionKey -> [{name, qty, notes}]
-
-// ── Helpers ──────────────────────────────────────────────────────────────────
-
+// ─────────────────────────────────────────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────────────────────────────────────────
 function today() {
-  return new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+  return new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' });
 }
-
+function detectDay() {
+  const dow = new Date().getDay(); // 0=Sun...6=Sat
+  return (dow === 3 || dow === 4) ? 'Thursday' : 'Tuesday';
+}
 function daysSince(dateStr) {
   if (!dateStr) return null;
   const d = new Date(dateStr);
   if (isNaN(d)) return null;
   return Math.floor((Date.now() - d.getTime()) / 86400000);
 }
-
 function lastBoughtLabel(dateStr) {
   const d = daysSince(dateStr);
-  if (d === null) return { text: '', cls: '' };
-  if (d === 0) return { text: 'Today', cls: 'recent' };
-  if (d === 1) return { text: 'Yesterday', cls: 'recent' };
-  if (d <= 7) return { text: `${d}d ago`, cls: 'recent' };
-  if (d <= 14) return { text: `${d}d ago`, cls: '' };
-  return { text: `${d}d ago`, cls: 'stale' };
+  if (d === null) return { text:'', cls:'' };
+  if (d === 0) return { text:'Today', cls:'recent' };
+  if (d === 1) return { text:'Yesterday', cls:'recent' };
+  if (d <= 7) return { text:`${d}d ago`, cls:'recent' };
+  if (d <= 14) return { text:`${d}d ago`, cls:'' };
+  return { text:`${d}d ago`, cls:'stale' };
+}
+function escHtml(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function toggleCard(id) {
+  const body = document.getElementById('body-'+id);
+  const chev = document.getElementById('chev-'+id);
+  if (!body) return;
+  const open = body.classList.contains('open');
+  body.classList.toggle('open', !open);
+  if (chev) chev.classList.toggle('open', !open);
 }
 
-function updateTotals() {
-  const checked = Object.values(selections).filter(s => s.checked).length;
-  const total = allItems.filter(i => i.store !== 'Jewel').length;
-  // Count non-empty custom items across all sections
-  let customCount = 0;
-  Object.values(customItems).forEach(rows => {
-    rows.forEach(r => { if (r && r.name && r.name.trim()) customCount++; });
-  });
-  const totalSelected = checked + customCount;
-  document.getElementById('badge-total').textContent =
-    totalSelected === 0 ? '0 items' : `${totalSelected} item${totalSelected !== 1 ? 's' : ''}`;
-  document.getElementById('progress-bar').style.width =
-    total > 0 ? `${Math.min(100, (checked / total) * 100)}%` : '0%';
-  const btn = document.getElementById('submit-btn');
-  btn.disabled = totalSelected === 0;
-  btn.textContent = totalSelected === 0 ? 'Select items to submit' :
-    `Submit ${totalSelected} item${totalSelected !== 1 ? 's' : ''}`;
-}
+// ─────────────────────────────────────────────────────────────────────────────
+// GROCERY SECTION (from existing app)
+// ─────────────────────────────────────────────────────────────────────────────
+const SECTION_CONFIG = [
+  { key:'Fruits',              emoji:'🍓', label:'Fruits' },
+  { key:'Vegetables',          emoji:'🥦', label:'Vegetables' },
+  { key:'Protein',             emoji:'🥩', label:'Protein' },
+  { key:'Dairy',               emoji:'🥛', label:'Dairy' },
+  { key:'Deli',                emoji:'🍖', label:'Deli' },
+  { key:'Frozen',              emoji:'🧊', label:'Frozen' },
+  { key:'Grains & Bread',      emoji:'🍞', label:'Grains & Bread' },
+  { key:'Beverages',           emoji:'🥤', label:'Beverages' },
+  { key:'Condiments & Pantry', emoji:'🫙', label:'Condiments & Pantry' },
+  { key:'Snacks',              emoji:'🍿', label:'Snacks' },
+  { key:'Household & Baby',    emoji:'🏠', label:'Household & Baby' },
+];
+const FREQ_ORDER = {'Every week':0,'Most weeks':1,'Occasional':2,'Rare':3};
 
-// ── Data loading ──────────────────────────────────────────────────────────────
-
-function loadItems() {
-  allItems = FALLBACK_ITEMS;
-  buildUI();
-}
-
-// ── UI building ───────────────────────────────────────────────────────────────
-
-function buildUI() {
-  document.getElementById('header-date').textContent = today();
-  document.getElementById('main-content').style.display = 'block';
-
-  const wrap = document.getElementById('sections-wrap');
+function buildGrocery() {
+  const wrap = document.getElementById('grocery-sections');
   wrap.innerHTML = '';
-
-  // Init selections
   selections = {};
-  allItems.forEach(item => {
-    selections[item.id] = {
-      checked: false,
-      qty: item.quantity || '1',
-      defaultQty: item.quantity || '1',
-      name: item.name,
-      section: item.section,
-      qtyType: item.qtyType || 'count',
-      clarifier: item.clarifier || '',
-      lastPurchased: item.lastPurchased || null,
-    };
-  });
-
-  // Init custom items
   customItems = {};
   SECTION_CONFIG.forEach(s => { customItems[s.key] = []; });
 
-  // Group by section
   const bySection = {};
   SECTION_CONFIG.forEach(s => { bySection[s.key] = []; });
-  allItems.forEach(item => {
+  FALLBACK_ITEMS.forEach(item => {
     if (bySection[item.section]) bySection[item.section].push(item);
-    else if (bySection['Condiments & Pantry']) bySection['Condiments & Pantry'].push(item);
   });
-
-  // Sort within each section by frequency
   SECTION_CONFIG.forEach(sc => {
-    bySection[sc.key].sort((a, b) =>
-      (FREQ_ORDER[a.frequency] ?? 99) - (FREQ_ORDER[b.frequency] ?? 99)
-    );
+    bySection[sc.key].sort((a,b) => (FREQ_ORDER[a.frequency]??99)-(FREQ_ORDER[b.frequency]??99));
   });
 
-  // Render sections
+  FALLBACK_ITEMS.forEach(item => {
+    selections[item.id] = { checked:false, qty:item.quantity||'1', name:item.name, section:item.section, qtyType:item.qtyType||'count', clarifier:item.clarifier||'', lastPurchased:item.lastPurchased||'' };
+  });
+
   SECTION_CONFIG.forEach((sc, idx) => {
     const items = bySection[sc.key];
-    const el = buildSection(sc, items, idx === 0);
-    wrap.appendChild(el);
+    const sec = buildGrocerySection(sc, items, idx===0);
+    wrap.appendChild(sec);
   });
-
-  updateTotals();
+  updateGroceryTotals();
 }
 
-function buildSection(sc, items, isOpen) {
+function buildGrocerySection(sc, items, isOpen) {
   const sec = document.createElement('div');
-  sec.className = 'section';
-  sec.id = `section-${sc.key.replace(/\W/g, '-')}`;
+  sec.className = 'card';
+  const safeKey = sc.key.replace(/\W/g,'-');
 
-  // Header
   const header = document.createElement('div');
-  header.className = 'section-header';
+  header.className = 'card-header';
   header.innerHTML = `
-    <div class="section-title-wrap">
-      <span class="section-emoji">${sc.emoji}</span>
-      <span class="section-name">${sc.label}</span>
-      <span class="section-badge" id="badge-${sc.key.replace(/\W/g, '-')}"></span>
+    <div class="card-header-left">
+      <span class="card-emoji">${sc.emoji}</span>
+      <div>
+        <div class="card-title">${sc.label}</div>
+        <span class="card-badge" id="gbadge-${safeKey}"></span>
+      </div>
     </div>
-    <span class="section-chevron ${isOpen ? 'open' : ''}" id="chev-${sc.key.replace(/\W/g, '-')}">▾</span>
+    <span class="card-chevron ${isOpen?'open':''}" id="gchev-${safeKey}">▾</span>
   `;
-  header.onclick = () => toggleSection(sc.key);
+  header.onclick = () => {
+    const body = document.getElementById('gbody-'+safeKey);
+    const chev = document.getElementById('gchev-'+safeKey);
+    const open = body.classList.contains('open');
+    body.classList.toggle('open', !open);
+    chev.classList.toggle('open', !open);
+  };
   sec.appendChild(header);
 
-  // Divider + body
   const divider = document.createElement('div');
-  divider.className = 'section-divider';
+  divider.className = 'card-divider';
   sec.appendChild(divider);
 
   const body = document.createElement('div');
-  body.className = `section-body ${isOpen ? 'open' : ''}`;
-  body.id = `body-${sc.key.replace(/\W/g, '-')}`;
+  body.className = `card-body ${isOpen?'open':''}`;
+  body.id = 'gbody-'+safeKey;
 
-  // Item rows
   items.forEach(item => {
     const row = buildItemRow(item);
     body.appendChild(row);
   });
 
-  // Custom items area
+  // Custom section
   const customWrap = document.createElement('div');
   customWrap.className = 'custom-section';
-  customWrap.id = `custom-${sc.key.replace(/\W/g, '-')}`;
   customWrap.innerHTML = `
-    <div class="custom-section-label">Anything else from ${sc.label}?</div>
-    <div class="custom-rows" id="custom-rows-${sc.key.replace(/\W/g, '-')}"></div>
-    <button class="add-custom-btn" onclick="addCustomRow('${sc.key}')">
-      + Add item
-    </button>
+    <div class="custom-label">Anything else from ${sc.label}?</div>
+    <div id="gcustom-rows-${safeKey}"></div>
+    <button class="add-btn" onclick="addGCustomRow('${sc.key}')">+ Add item</button>
   `;
   body.appendChild(customWrap);
-
-  // Add first custom row by default
-  addCustomRow(sc.key, customWrap.querySelector('.custom-rows'));
+  addGCustomRow(sc.key, body.querySelector(`#gcustom-rows-${safeKey}`));
 
   sec.appendChild(body);
   return sec;
@@ -738,301 +883,174 @@ function buildSection(sc, items, isOpen) {
 function buildItemRow(item) {
   const row = document.createElement('div');
   row.className = 'item-row';
-  row.id = `row-${item.id}`;
-
+  row.id = 'grow-'+item.id;
   const lb = lastBoughtLabel(item.lastPurchased);
-  const qtyType = item.qtyType || 'count';
-  const qtyDisplay = qtyType === 'lb' ? (item.quantity || '1') + ' lb' : (item.quantity || '1');
-  const clarifier = item.clarifier ? ` <span style="font-weight:400;color:var(--gray-400)">(${escHtml(item.clarifier)})</span>` : '';
-
+  const qtyDisplay = item.qtyType==='lb' ? (item.quantity||'1')+' lb' : (item.quantity||'1');
+  const clarifier = item.clarifier ? ` <span style="font-weight:400;color:var(--gray-400);font-size:11px;">(${escHtml(item.clarifier)})</span>` : '';
   row.innerHTML = `
-    <div class="checkbox" id="chk-${item.id}" onclick="toggleItem('${item.id}')"></div>
+    <div class="checkbox" id="gchk-${item.id}" onclick="toggleGItem('${item.id}')"></div>
     <div class="item-info">
       <div class="item-name">${escHtml(item.name)}${clarifier}</div>
-      ${item.notes ? `<div class="item-notes">${escHtml(item.notes)}</div>` : ''}
+      ${item.notes ? `<div class="item-notes-small">${escHtml(item.notes)}</div>` : ''}
     </div>
-    <div class="qty-controls" id="qty-${item.id}">
-      <button class="qty-btn" onclick="adjQty('${item.id}',-1)">−</button>
-      <div class="qty-val" id="qval-${item.id}">${qtyDisplay}</div>
-      <button class="qty-btn" onclick="adjQty('${item.id}',1)">+</button>
+    <div class="qty-controls" id="gqty-${item.id}">
+      <button class="qty-btn" onclick="adjGQty('${item.id}',-1)">−</button>
+      <div class="qty-val" id="gqval-${item.id}">${qtyDisplay}</div>
+      <button class="qty-btn" onclick="adjGQty('${item.id}',1)">+</button>
     </div>
-    <div class="item-last ${lb.cls}" id="last-${item.id}">${lb.text}</div>
+    <div class="item-last ${lb.cls}">${lb.text}</div>
   `;
   return row;
 }
 
-function escHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-// ── Interactions ──────────────────────────────────────────────────────────────
-
-function toggleSection(key) {
-  const safeKey = key.replace(/\W/g, '-');
-  const body = document.getElementById(`body-${safeKey}`);
-  const chev = document.getElementById(`chev-${safeKey}`);
-  const isOpen = body.classList.contains('open');
-  body.classList.toggle('open', !isOpen);
-  chev.classList.toggle('open', !isOpen);
-}
-
-function toggleItem(id) {
+function toggleGItem(id) {
   const sel = selections[id];
   if (!sel) return;
   sel.checked = !sel.checked;
-
-  const chk = document.getElementById(`chk-${id}`);
-  const row = document.getElementById(`row-${id}`);
-  const qty = document.getElementById(`qty-${id}`);
-
-  chk.classList.toggle('checked', sel.checked);
-  row.classList.toggle('checked', sel.checked);
-  qty.classList.toggle('active', sel.checked);
-
-  updateSectionBadge(sel.section);
-  updateTotals();
+  document.getElementById('gchk-'+id)?.classList.toggle('checked', sel.checked);
+  document.getElementById('grow-'+id)?.classList.toggle('checked', sel.checked);
+  document.getElementById('gqty-'+id)?.classList.toggle('active', sel.checked);
+  updateGSectionBadge(sel.section);
+  updateGroceryTotals();
 }
 
-function adjQty(id, delta) {
+function adjGQty(id, delta) {
   const sel = selections[id];
   if (!sel || !sel.checked) return;
-
-  // Bread toggle: cycle between 1 and 1/2
   if (sel.qtyType === 'bread') {
     sel.qty = sel.qty === '1' ? '1/2' : '1';
-    document.getElementById(`qval-${id}`).textContent = sel.qty;
+    document.getElementById('gqval-'+id).textContent = sel.qty;
     return;
   }
-
-  // Pound items: 0.25 lb increments, min 0.25
   if (sel.qtyType === 'lb') {
     const num = parseFloat(sel.qty) || 0.25;
     const next = Math.max(0.25, Math.round((num + delta * 0.25) * 4) / 4);
-    const fracs = { 0.25: '1/4', 0.5: '1/2', 0.75: '3/4' };
+    const fracs = { 0.25:'1/4', 0.5:'1/2', 0.75:'3/4' };
     const whole = Math.floor(next);
     const frac = Math.round((next - whole) * 4) / 4;
     const fracStr = fracs[frac] || '';
     sel.qty = whole > 0 && fracStr ? `${whole} ${fracStr}` : (fracStr || String(whole));
-    document.getElementById(`qval-${id}`).textContent = sel.qty + ' lb';
+    document.getElementById('gqval-'+id).textContent = sel.qty + ' lb';
     return;
   }
-
-  // Default: whole number increments, min 1
   const num = parseFloat(sel.qty) || 1;
   sel.qty = String(Math.max(1, num + delta));
-  document.getElementById(`qval-${id}`).textContent = sel.qty;
+  document.getElementById('gqval-'+id).textContent = sel.qty;
 }
 
-function updateSectionBadge(sectionKey) {
-  const safeKey = sectionKey.replace(/\W/g, '-');
-  const badge = document.getElementById(`badge-${safeKey}`);
+function updateGSectionBadge(sectionKey) {
+  const safeKey = sectionKey.replace(/\W/g,'-');
+  const badge = document.getElementById('gbadge-'+safeKey);
   if (!badge) return;
   const count = Object.values(selections).filter(s => s.checked && s.section === sectionKey).length;
   badge.textContent = count;
   badge.classList.toggle('visible', count > 0);
 }
 
-// ── Custom items ──────────────────────────────────────────────────────────────
-
-function addCustomRow(sectionKey, containerEl) {
-  const safeKey = sectionKey.replace(/\W/g, '-');
-  const container = containerEl || document.getElementById(`custom-rows-${safeKey}`);
+function addGCustomRow(sectionKey, containerEl) {
+  const safeKey = sectionKey.replace(/\W/g,'-');
+  const container = containerEl || document.getElementById('gcustom-rows-'+safeKey);
   if (!container) return;
-
   const idx = container.children.length;
   const rowEl = document.createElement('div');
-  rowEl.className = 'custom-item-row';
+  rowEl.className = 'custom-row-3';
   rowEl.innerHTML = `
-    <input class="custom-input" type="text" placeholder="Item name"
-      oninput="syncCustom('${sectionKey}', ${idx}, 'name', this.value)" />
-    <input class="custom-input" type="text" placeholder="Qty"
-      oninput="syncCustom('${sectionKey}', ${idx}, 'qty', this.value)" />
-    <input class="custom-input" type="text" placeholder="Notes (optional)"
-      oninput="syncCustom('${sectionKey}', ${idx}, 'notes', this.value)" />
+    <input class="input" type="text" placeholder="Item name" style="font-size:13px;" oninput="syncGCustom('${sectionKey}',${idx},'name',this.value)" />
+    <input class="input" type="text" placeholder="Qty" style="font-size:13px;" oninput="syncGCustom('${sectionKey}',${idx},'qty',this.value)" />
+    <input class="input" type="text" placeholder="Notes" style="font-size:13px;" oninput="syncGCustom('${sectionKey}',${idx},'notes',this.value)" />
   `;
   container.appendChild(rowEl);
-
-  // Ensure slot exists
   if (!customItems[sectionKey]) customItems[sectionKey] = [];
-  customItems[sectionKey][idx] = { name: '', qty: '', notes: '' };
+  customItems[sectionKey][idx] = { name:'', qty:'', notes:'' };
 }
 
-function syncCustom(sectionKey, idx, field, value) {
+function syncGCustom(sectionKey, idx, field, value) {
   if (!customItems[sectionKey]) customItems[sectionKey] = [];
-  if (!customItems[sectionKey][idx]) customItems[sectionKey][idx] = { name:'', qty:'', notes:'' };
+  if (!customItems[sectionKey][idx]) customItems[sectionKey][idx] = {name:'',qty:'',notes:''};
   customItems[sectionKey][idx][field] = value;
-  updateTotals();
+  updateGroceryTotals();
 }
 
-// ── Submit ────────────────────────────────────────────────────────────────────
+function updateGroceryTotals() {
+  if (activeTab !== 'grocery') return;
+  const checked = Object.values(selections).filter(s => s.checked).length;
+  let customCount = 0;
+  Object.values(customItems).forEach(rows => { rows.forEach(r => { if (r&&r.name&&r.name.trim()) customCount++; }); });
+  const total = checked + customCount;
+  const total2 = Object.values(selections).filter(i => i.section !== 'Jewel').length;
+  document.getElementById('header-badge').textContent = total===0 ? '0 items' : `${total} item${total!==1?'s':''}`;
+  document.getElementById('progress-bar').style.width = total2>0 ? `${Math.min(100,(checked/total2)*100)}%` : '0%';
+  const btn = document.getElementById('grocery-submit-btn');
+  btn.disabled = total === 0;
+  btn.textContent = total===0 ? 'Select items to submit' : `Submit ${total} item${total!==1?'s':''}`;
+}
 
-function skipGroceries() {
+// ─────────────────────────────────────────────────────────────────────────────
+// GROCERY SUBMIT
+// ─────────────────────────────────────────────────────────────────────────────
+async function skipGroceries() {
   if (!confirm('Skip groceries this week? This will notify Leah that no Whole Foods run is needed.')) return;
-
-  const payload = {
-    submittedAt: new Date().toISOString(),
-    sessionDate: today(),
-    skipped: true,
-    selectedItems: [],
-    customItems: [],
-    totalItems: 0,
-    orderNotes: ''
-  };
-
-  fetch(SUBMIT_WEBHOOK, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain' },
-    body: JSON.stringify(payload)
-  }).catch(() => {});
-
-  // Show skip success screen
-  document.getElementById('main-content').style.display = 'none';
-  document.getElementById('footer').style.display = 'none';
-  const screen = document.getElementById('success-screen');
-  screen.classList.add('visible');
-  screen.querySelector('h2').textContent = 'No groceries today';
-  screen.querySelector('p').textContent = 'Got it — no Whole Foods run this week. Leah has been notified.';
-  screen.querySelector('.success-icon').textContent = '✕';
-  document.getElementById('success-summary').style.display = 'none';
+  const payload = { submittedAt: new Date().toISOString(), dayOfWeek: currentDay, skipped: true, selectedItems:[], customItems:[], totalItems:0, orderNotes:'' };
+  if (GROCERY_WEBHOOK) fetch(GROCERY_WEBHOOK, { method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body: JSON.stringify(payload) }).catch(()=>{});
+  showGrocerySuccess([], []);
 }
 
-async function submitOrder() {
-  const btn = document.getElementById('submit-btn');
-  btn.disabled = true;
-  btn.textContent = 'Submitting...';
-
-  // Build payload
-  const selected = Object.entries(selections)
-    .filter(([,s]) => s.checked)
-    .map(([id, s]) => ({
-      notionPageId: id,
-      name: s.name,
-      section: s.section,
-      quantity: s.qty,
-      lastPurchased: new Date().toISOString().slice(0,10)
-    }));
-
-  // Gather non-empty custom items
+function submitGrocery() {
+  const btn = document.getElementById('grocery-submit-btn');
+  btn.disabled = true; btn.textContent = 'Submitting...';
+  const selected = Object.entries(selections).filter(([,s]) => s.checked).map(([id,s]) => ({ notionPageId:id, name:s.name, section:s.section, quantity:s.qty, lastPurchased: new Date().toISOString().slice(0,10) }));
   const custom = [];
-  Object.entries(customItems).forEach(([section, rows]) => {
-    rows.forEach(r => {
-      if (r.name && r.name.trim()) {
-        custom.push({
-          name: r.name.trim(),
-          section,
-          quantity: r.qty || '1',
-          notes: r.notes || '',
-          isNew: true
-        });
-      }
-    });
-  });
-
-  const today_date = new Date().toISOString().slice(0,10);
-
-  // Send one request per selected item so Zapier can update each Notion page
-  // individually without needing a loop step
-  const allRequests = selected.map(item =>
-    fetch(SUBMIT_WEBHOOK, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({
-        type: 'selected',
-        sessionDate: today(),
-        notionPageId: item.notionPageId,
-        name: item.name,
-        section: item.section,
-        quantity: item.quantity,
-        lastPurchased: today_date,
-        skipped: false
-      })
-    }).catch(() => {})
-  );
-
-  // Also send one request per custom item
-  const customRequests = custom.map(item =>
-    fetch(SUBMIT_WEBHOOK, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({
-        type: 'custom',
-        sessionDate: today(),
-        name: item.name,
-        section: item.section,
-        quantity: item.quantity,
-        notes: item.notes,
-        lastPurchased: today_date,
-        skipped: false
-      })
-    }).catch(() => {})
-  );
-
-  // Send a final summary request
-  const summaryRequest = fetch(SUBMIT_WEBHOOK, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain' },
-    body: JSON.stringify({
-      type: 'summary',
-      sessionDate: today(),
-      totalItems: selected.length + custom.length,
-      customItemCount: custom.length,
-      skipped: false,
-      itemNames: selected.map(i => i.name).join(', '),
-      customItemNames: custom.map(i => i.name).join(', ')
-    })
-  }).catch(() => {});
-
-  try {
-    await Promise.all([...allRequests, ...customRequests, summaryRequest]);
-  } catch(e) {
-    // Still show success
-  }
-
-  showSuccess(selected, custom);
+  Object.entries(customItems).forEach(([section,rows]) => { rows.forEach(r => { if (r.name&&r.name.trim()) custom.push({name:r.name.trim(), section, quantity:r.qty||'1', notes:r.notes||'', isNew:true}); }); });
+  const notes = document.getElementById('grocery-notes')?.value?.trim()||'';
+  const payload = { submittedAt: new Date().toISOString(), dayOfWeek: currentDay, selectedItems:selected, customItems:custom, totalItems:selected.length+custom.length, orderNotes:notes };
+  if (GROCERY_WEBHOOK) fetch(GROCERY_WEBHOOK, { method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body: JSON.stringify(payload) }).catch(()=>{});
+  showGrocerySuccess(selected, custom);
 }
 
-function showSuccess(selected, custom) {
-  document.getElementById('main-content').style.display = 'none';
-  document.getElementById('footer').style.display = 'none';
-
-  const screen = document.getElementById('success-screen');
-  screen.classList.add('visible');
-
-  const summary = document.getElementById('success-summary');
+function showGrocerySuccess(selected, custom) {
+  document.getElementById('grocery-main').style.display = 'none';
+  document.getElementById('grocery-submit-btn').style.display = 'none';
+  document.getElementById('grocery-success').classList.add('visible');
+  const summary = document.getElementById('grocery-summary');
   summary.innerHTML = '';
-
-  const allChosen = [
-    ...selected.map(s => ({ name: s.name, qty: s.quantity, section: s.section })),
-    ...custom.map(c => ({ name: c.name + ' ✦', qty: c.quantity, section: c.section }))
-  ];
-
-  // Group by section for display
+  const allChosen = [...selected.map(s=>({name:s.name,qty:s.quantity,section:s.section})), ...custom.map(c=>({name:c.name+'✦',qty:c.quantity,section:c.section}))];
   const grouped = {};
-  allChosen.forEach(item => {
-    if (!grouped[item.section]) grouped[item.section] = [];
-    grouped[item.section].push(item);
-  });
-
+  allChosen.forEach(item => { if (!grouped[item.section]) grouped[item.section]=[]; grouped[item.section].push(item); });
   Object.entries(grouped).forEach(([section, items]) => {
-    const header = document.createElement('div');
-    header.style.cssText = 'font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;padding:6px 0 3px;';
-    header.textContent = section;
-    summary.appendChild(header);
-    items.forEach(item => {
-      const row = document.createElement('div');
-      row.className = 'success-summary-item';
-      row.innerHTML = `<span>${escHtml(item.name)}</span><span class="success-summary-qty">${escHtml(item.qty)}</span>`;
-      summary.appendChild(row);
-    });
+    const sh = document.createElement('div'); sh.className='success-sec'; sh.textContent=section; summary.appendChild(sh);
+    items.forEach(item => { const row=document.createElement('div'); row.className='success-row'; row.innerHTML='<span>'+escHtml(item.name)+'</span><span style="color:var(--gray-400);font-size:11px;">'+escHtml(item.qty)+'</span>'; summary.appendChild(row); });
   });
 }
 
-// ── Fallback data (used when webhook not yet configured) ──────────────────────
-// qtyType: 'count' (whole numbers), 'lb' (0.25 increments), 'bread' (1 or 1/2)
-// clarifier: unit shown in parentheses next to item name e.g. (head), (bunch)
+// ─────────────────────────────────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────────────────────────────────
+function updateGroceryTotals() {
+  const checked = Object.values(selections).filter(s => s.checked).length;
+  let customCount = 0;
+  Object.values(customItems).forEach(rows => { rows.forEach(r => { if (r&&r.name&&r.name.trim()) customCount++; }); });
+  const total = checked + customCount;
+  const total2 = Object.values(selections).filter(i => i.section !== 'Jewel').length;
+  document.getElementById('header-badge').textContent = total===0 ? '0 items' : total+' item'+(total!==1?'s':'');
+  document.getElementById('progress-bar').style.width = total2>0 ? Math.min(100,(checked/total2)*100)+'%' : '0%';
+  const btn = document.getElementById('grocery-submit-btn');
+  btn.disabled = total === 0;
+  btn.textContent = total===0 ? 'Select items to submit' : 'Submit '+total+' item'+(total!==1?'s':'');
+}
 
+function init() {
+  document.getElementById('header-date').textContent = today();
+  currentDay = detectDay();
+  buildGrocery();
+  updateGroceryTotals();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FALLBACK GROCERY ITEMS
+// ─────────────────────────────────────────────────────────────────────────────
 const FALLBACK_ITEMS = [
-  // Fruits
   { id:'32660659-6369-8132-9178-e1366322796d', name:'Bananas', section:'Fruits', frequency:'Every week', quantity:'2', qtyType:'count', clarifier:'', notes:'Mix of ripe and firm', store:'Whole Foods', lastPurchased:'' },
   { id:'32660659-6369-81d0-8350-edbeab362284', name:'Mixed melon', section:'Fruits', frequency:'Every week', quantity:'1', qtyType:'count', clarifier:'container', notes:'', store:'Whole Foods', lastPurchased:'' },
   { id:'32660659-6369-8127-89d0-f0ad27cea87b', name:'Blueberries', section:'Fruits', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'container', notes:'Jumbo', store:'Whole Foods', lastPurchased:'' },
@@ -1042,7 +1060,6 @@ const FALLBACK_ITEMS = [
   { id:'32660659-6369-8120-afde-c23ee66469f1', name:'Mango', section:'Fruits', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'', notes:'', store:'Whole Foods', lastPurchased:'' },
   { id:'32660659-6369-81b4-9d01-c38df7d8ac27', name:'Limes', section:'Fruits', frequency:'Occasional', quantity:'4', qtyType:'count', clarifier:'', notes:'', store:'Whole Foods', lastPurchased:'' },
   { id:'32660659-6369-8199-8918-d200bf0f0964', name:'Lemons', section:'Fruits', frequency:'Occasional', quantity:'4', qtyType:'count', clarifier:'', notes:'', store:'Whole Foods', lastPurchased:'' },
-  // Vegetables
   { id:'32660659-6369-81ea-b6aa-f9dc3dba476f', name:'Broccoli', section:'Vegetables', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'head', notes:'', store:'Whole Foods', lastPurchased:'' },
   { id:'32660659-6369-81a2-b969-f1efe763da59', name:'Purple cauliflower', section:'Vegetables', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'head', notes:'', store:'Whole Foods', lastPurchased:'' },
   { id:'32660659-6369-8165-923c-cc70d2554613', name:'English cucumber', section:'Vegetables', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'', notes:'', store:'Whole Foods', lastPurchased:'' },
@@ -1064,7 +1081,6 @@ const FALLBACK_ITEMS = [
   { id:'32660659-6369-8170-9888-d6e436183b95', name:'Corn', section:'Vegetables', frequency:'Rare', quantity:'4', qtyType:'count', clarifier:'ears', notes:'', store:'Whole Foods', lastPurchased:'' },
   { id:'32660659-6369-81c2-ad07-e6b4f5232467', name:'Russet potatoes', section:'Vegetables', frequency:'Rare', quantity:'3', qtyType:'count', clarifier:'', notes:'', store:'Whole Foods', lastPurchased:'' },
   { id:'32660659-6369-81fa-b20d-f58e4665e6eb', name:'Sweet potato', section:'Vegetables', frequency:'Rare', quantity:'1', qtyType:'count', clarifier:'', notes:'The usual one for pancakes', store:'Whole Foods', lastPurchased:'' },
-  // Protein
   { id:'32660659-6369-8184-bedf-c3d4f509014d', name:'Boneless skinless chicken thighs', section:'Protein', frequency:'Every week', quantity:'1', qtyType:'count', clarifier:'pack', notes:'', store:'Whole Foods', lastPurchased:'' },
   { id:'32660659-6369-8127-a18c-e843579e3bb4', name:'Boneless skinless chicken breasts', section:'Protein', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'pack', notes:'Ideally 3 breasts', store:'Whole Foods', lastPurchased:'' },
   { id:'32660659-6369-8125-9836-f7385a2d80df', name:'Bacon', section:'Protein', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'pack', notes:'', store:'Whole Foods', lastPurchased:'' },
@@ -1077,38 +1093,32 @@ const FALLBACK_ITEMS = [
   { id:'32660659-6369-8181-a089-e63fe3dfb381', name:'Beef kabob', section:'Protein', frequency:'Rare', quantity:'1', qtyType:'count', clarifier:'', notes:'', store:'Whole Foods', lastPurchased:'' },
   { id:'32660659-6369-81ce-8094-ccff47e3558e', name:'Chicken kabob', section:'Protein', frequency:'Rare', quantity:'2', qtyType:'count', clarifier:'', notes:'', store:'Whole Foods', lastPurchased:'' },
   { id:'32660659-6369-8187-8d58-df60d713a626', name:'Jalapeño chicken sausage', section:'Protein', frequency:'Rare', quantity:'1', qtyType:'count', clarifier:'package', notes:'', store:'Whole Foods', lastPurchased:'' },
-  // Dairy
   { id:'32660659-6369-81ae-9bc2-cf8bf8d47abb', name:'Whole milk', section:'Dairy', frequency:'Every week', quantity:'1', qtyType:'count', clarifier:'half gallon', notes:'', store:'Whole Foods', lastPurchased:'' },
   { id:'32660659-6369-8127-b135-fa9d2c72d9fd', name:'Eggs', section:'Dairy', frequency:'Every week', quantity:'1', qtyType:'count', clarifier:'dozen', notes:'', store:'Whole Foods', lastPurchased:'' },
   { id:'32660659-6369-8141-9b96-d69fe9854583', name:'Butter', section:'Dairy', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'pack, unsalted', notes:'', store:'Whole Foods', lastPurchased:'' },
   { id:'32660659-6369-81b3-9d4e-f3d6ad562a0a', name:'Shredded mexican cheese', section:'Dairy', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'bag', notes:'', store:'Whole Foods', lastPurchased:'' },
-  // Deli
   { id:'32660659-6369-81e6-88e8-e63f238a6b78', name:'Yellow american cheese', section:'Deli', frequency:'Most weeks', quantity:'0.25', qtyType:'lb', clarifier:'deli counter', notes:'', store:'Whole Foods', lastPurchased:'' },
   { id:'32660659-6369-816a-abbe-fb71f72732da', name:'Black Forest ham', section:'Deli', frequency:'Most weeks', quantity:'1', qtyType:'lb', clarifier:'sliced thin', notes:'', store:'Whole Foods', lastPurchased:'' },
   { id:'32660659-6369-8150-bd04-eb8237a585aa', name:'Chicken salad', section:'Deli', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'medium container', notes:'Classic, from deli', store:'Whole Foods', lastPurchased:'' },
   { id:'32660659-6369-81bc-b20c-dd64528f77e6', name:'Oven roasted turkey', section:'Deli', frequency:'Occasional', quantity:'1', qtyType:'lb', clarifier:'', notes:'In-house WF; sub peppered roasted if unavailable', store:'Whole Foods', lastPurchased:'' },
-  // Frozen
   { id:'32660659-6369-810f-81af-d0a594008da9', name:'Ice cream cookie sandwiches', section:'Frozen', frequency:'Every week', quantity:'1', qtyType:'count', clarifier:'box', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'fr2', name:"Jeni's Salted Caramel ice cream", section:'Frozen', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'pint', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'fr3', name:"Jeni's Blackout Chocolate Cake ice cream", section:'Frozen', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'pint', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'32660659-6369-815a-9f88-fdc377dfdf80', name:"Jeni's Salted Caramel ice cream", section:'Frozen', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'pint', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'32660659-6369-81dc-98f8-d9de14e4437c', name:"Jeni's Blackout Chocolate Cake ice cream", section:'Frozen', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'pint', notes:'', store:'Whole Foods', lastPurchased:'' },
   { id:'32660659-6369-817e-8886-fcbdfffbb366', name:'Frozen mixed berries', section:'Frozen', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'bag', notes:'', store:'Whole Foods', lastPurchased:'' },
-  // Grains & Bread
   { id:'32660659-6369-81f6-9218-de9cea2b24df', name:'Sourdough bread', section:'Grains & Bread', frequency:'Every week', quantity:'1', qtyType:'bread', clarifier:'sliced, from bakery', notes:'', store:'Whole Foods', lastPurchased:'' },
   { id:'32660659-6369-8122-aabd-f34a027a6cf4', name:'French bread', section:'Grains & Bread', frequency:'Most weeks', quantity:'1', qtyType:'bread', clarifier:'sliced', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'g3', name:"Nature's Own Brioche buns", section:'Grains & Bread', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'package', notes:'Sub similar if unavailable — let us know', store:'Whole Foods', lastPurchased:'' },
+  { id:'32660659-6369-812e-b0eb-d28e3d92d10e', name:"Nature's Own Brioche buns", section:'Grains & Bread', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'package', notes:'Sub similar if unavailable — let us know', store:'Whole Foods', lastPurchased:'' },
   { id:'32660659-6369-815b-affd-f600076c6699', name:'Rolled oats', section:'Grains & Bread', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'bag', notes:'', store:'Whole Foods', lastPurchased:'' },
   { id:'32660659-6369-8160-94af-d7eeffea0cb9', name:'De Cecco Cavatappi pasta', section:'Grains & Bread', frequency:'Rare', quantity:'1', qtyType:'count', clarifier:'box', notes:'', store:'Whole Foods', lastPurchased:'' },
-  // Beverages
   { id:'32660659-6369-81b1-9cb6-c98aac785799', name:'Spindrift Grapefruit', section:'Beverages', frequency:'Every week', quantity:'3', qtyType:'count', clarifier:'singles or 1 pack', notes:'', store:'Whole Foods', lastPurchased:'' },
   { id:'32660659-6369-817d-ad73-f98df952b6b0', name:'Spindrift Lemon', section:'Beverages', frequency:'Most weeks', quantity:'3', qtyType:'count', clarifier:'', notes:'', store:'Whole Foods', lastPurchased:'' },
   { id:'32660659-6369-8156-880d-c582e32be79c', name:'Spindrift Raspberry/Lime', section:'Beverages', frequency:'Most weeks', quantity:'3', qtyType:'count', clarifier:'', notes:'', store:'Whole Foods', lastPurchased:'' },
   { id:'32660659-6369-818b-97e6-ef86563e3937', name:'Topo Chico Lime', section:'Beverages', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'12-pack', notes:'Sometimes out of stock', store:'Whole Foods', lastPurchased:'' },
   { id:'32660659-6369-81df-878f-c074cf8b380d', name:'Distilled water', section:'Beverages', frequency:'Occasional', quantity:'2', qtyType:'count', clarifier:'gallons', notes:'', store:'Whole Foods', lastPurchased:'' },
   { id:'32660659-6369-8134-829e-d77dd228c4b4', name:'Whole coffee beans', section:'Beverages', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'bag', notes:'Light or medium roast', store:'Whole Foods', lastPurchased:'' },
-  // Condiments & Pantry
   { id:'32660659-6369-81ed-8c50-e56868910807', name:'WF Peanut Butter', section:'Condiments & Pantry', frequency:'Most weeks', quantity:'2', qtyType:'count', clarifier:'jars', notes:'Green top, unsweetened unsalted', store:'Whole Foods', lastPurchased:'' },
   { id:'32660659-6369-81dd-8d7a-e62db830642f', name:'WF Almond Butter', section:'Condiments & Pantry', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'jar', notes:'Green top, organic creamy unsalted', store:'Whole Foods', lastPurchased:'' },
-  { id:'c3', name:"Rao's Alfredo sauce", section:'Condiments & Pantry', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'jar', notes:'', store:'Whole Foods', lastPurchased:'' },
+  { id:'32660659-6369-814e-9114-ff11cda777ae', name:"Rao's Alfredo sauce", section:'Condiments & Pantry', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'jar', notes:'', store:'Whole Foods', lastPurchased:'' },
   { id:'32660659-6369-81cb-8a71-d56a8fdb1fcf', name:'Sesame & Ginger dressing', section:'Condiments & Pantry', frequency:'Occasional', quantity:'2', qtyType:'count', clarifier:'bottles', notes:'', store:'Whole Foods', lastPurchased:'' },
   { id:'32660659-6369-816d-b26d-d007475a59d3', name:'Cholula hot sauce', section:'Condiments & Pantry', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'bottle', notes:'', store:'Whole Foods', lastPurchased:'' },
   { id:'32660659-6369-8128-884e-c7dbe3bf3669', name:'Tomato paste', section:'Condiments & Pantry', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'tube', notes:'', store:'Whole Foods', lastPurchased:'' },
@@ -1120,19 +1130,15 @@ const FALLBACK_ITEMS = [
   { id:'32660659-6369-8184-b4ca-cbceee967f5a', name:'Low sodium soy sauce', section:'Condiments & Pantry', frequency:'Rare', quantity:'1', qtyType:'count', clarifier:'bottle', notes:'', store:'Whole Foods', lastPurchased:'' },
   { id:'32660659-6369-81a0-ab8e-d0a86bdd266e', name:'Grape oil', section:'Condiments & Pantry', frequency:'Rare', quantity:'1', qtyType:'count', clarifier:'bottle', notes:'', store:'Whole Foods', lastPurchased:'' },
   { id:'32660659-6369-81c2-ac6f-e19492d0f7cb', name:'Maple syrup', section:'Condiments & Pantry', frequency:'Rare', quantity:'1', qtyType:'count', clarifier:'bottle', notes:'', store:'Whole Foods', lastPurchased:'' },
-  // Snacks
   { id:'32660659-6369-812b-9026-d205d37360c9', name:'WF Tortilla chips', section:'Snacks', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'bag', notes:'', store:'Whole Foods', lastPurchased:'' },
   { id:'32660659-6369-8167-9308-d6aafda9db4f', name:'Wavy potato chips', section:'Snacks', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'bag', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'s3', name:"Annie's mixed snack bags", section:'Snacks', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'package', notes:'Cheddar bunnies + graham crackers variety', store:'Whole Foods', lastPurchased:'' },
+  { id:'32660659-6369-81bd-b9f7-cd56752befb1', name:"Annie's mixed snack bags", section:'Snacks', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'package', notes:'Cheddar bunnies + graham crackers variety', store:'Whole Foods', lastPurchased:'' },
   { id:'32660659-6369-81a9-ae64-cd22c05b4e43', name:'Once Upon a Farm tractor wheel bars', section:'Snacks', frequency:'Occasional', quantity:'2', qtyType:'count', clarifier:'boxes', notes:'If on sale, grab 5; otherwise 2', store:'Whole Foods', lastPurchased:'' },
-  // Household & Baby
   { id:'32660659-6369-81e6-abb8-f5e0b2cd2da2', name:'Coterie diapers', section:'Household & Baby', frequency:'Most weeks', quantity:'2', qtyType:'count', clarifier:'packs, size 6', notes:'', store:'Whole Foods', lastPurchased:'' },
   { id:'32660659-6369-81b0-bf7d-f5a5cba6744c', name:'Wipes', section:'Household & Baby', frequency:'Most weeks', quantity:'2', qtyType:'count', clarifier:'packs', notes:'', store:'Either', lastPurchased:'' },
 ];
 
-// ── Boot ──────────────────────────────────────────────────────────────────────
-loadItems();
-
+init();
 </script>
 </body>
 </html>
