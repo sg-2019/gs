@@ -17,11 +17,6 @@
   --red-light: #fee2e2;
   --blue: #1a56b0;
   --blue-light: #eff6ff;
-  --purple: #6d28d9;
-  --purple-light: #f5f3ff;
-  --teal: #0f766e;
-  --teal-light: #f0fdfa;
-  --blue-light: #eff6ff;
   --gray-50: #f9fafb;
   --gray-100: #f3f4f6;
   --gray-200: #e5e7eb;
@@ -48,7 +43,6 @@ body {
   padding-bottom: 120px;
 }
 
-/* ── HEADER ── */
 .app-header {
   background: var(--green);
   color: white;
@@ -85,47 +79,6 @@ body {
   font-weight: 500;
 }
 
-/* ── TABS ── */
-.tabs {
-  display: flex;
-  gap: 2px;
-}
-.tab {
-  flex: 1;
-  padding: 10px 8px;
-  text-align: center;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  border-radius: var(--radius-xs) var(--radius-xs) 0 0;
-  transition: all 0.15s;
-  color: rgba(255,255,255,0.65);
-  border-bottom: 2px solid transparent;
-  letter-spacing: 0.01em;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-}
-.tab.active {
-  color: white;
-  border-bottom-color: white;
-  background: rgba(255,255,255,0.1);
-}
-.tab-dot {
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: #4ade80;
-  display: none;
-  flex-shrink: 0;
-}
-.tab-dot.visible { display: block; }
-
-/* ── TAB PANELS ── */
-.tab-panel { display: none; }
-.tab-panel.active { display: block; }
-
-/* ── SECTIONS ── */
 .wrap { padding: 10px 10px 0; max-width: 540px; margin: 0 auto; }
 
 .card {
@@ -157,11 +110,6 @@ body {
   font-weight: 600;
   color: var(--gray-900);
 }
-.card-subtitle {
-  font-size: 11px;
-  color: var(--gray-400);
-  margin-top: 1px;
-}
 .card-badge {
   font-size: 11px;
   font-weight: 600;
@@ -170,6 +118,7 @@ body {
   border-radius: 20px;
   padding: 2px 8px;
   display: none;
+  margin-top: 2px;
 }
 .card-badge.visible { display: inline-block; }
 .card-chevron {
@@ -184,19 +133,9 @@ body {
 .card-body { display: none; padding: 14px 16px; }
 .card-body.open { display: block; }
 
-/* ── FORM ELEMENTS ── */
 .field { margin-bottom: 14px; }
 .field:last-child { margin-bottom: 0; }
-.label {
-  display: block;
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: .07em;
-  color: var(--gray-500);
-  margin-bottom: 6px;
-}
-.input, .textarea, .select-input {
+.input, .textarea {
   width: 100%;
   font-family: 'DM Sans', sans-serif;
   font-size: 14px;
@@ -208,230 +147,17 @@ body {
   outline: none;
   transition: border-color 0.15s, background 0.15s;
 }
-.input:focus, .textarea:focus, .select-input:focus {
+.input:focus, .textarea:focus {
   border-color: var(--green);
   background: white;
 }
 .input::placeholder, .textarea::placeholder { color: var(--gray-400); }
 .textarea { resize: none; min-height: 72px; line-height: 1.5; }
-.select-input { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%239ca3af' d='M6 8L0 0h12z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 30px; }
 
-/* ── TOGGLE BUTTONS ── */
-.toggle-group {
-  display: flex;
-  gap: 4px;
-  flex-wrap: wrap;
-}
-.toggle-btn {
-  padding: 7px 14px;
-  border-radius: 20px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 13px;
-  font-weight: 500;
-  border: 1.5px solid var(--gray-200);
-  background: white;
-  color: var(--gray-600);
-  cursor: pointer;
-  transition: all 0.12s;
-}
-.toggle-btn.active {
-  border-color: var(--green);
-  background: var(--green-light);
-  color: var(--green);
-}
-.toggle-btn.active-blue {
-  border-color: var(--blue);
-  background: var(--blue-light);
-  color: var(--blue);
-}
-.toggle-btn.active-red {
-  border-color: var(--red);
-  background: var(--red-light);
-  color: var(--red);
-}
-
-/* ── TASK CHECKBOXES ── */
-.task-list { display: flex; flex-direction: column; gap: 1px; }
-.task-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 8px 0;
-  border-bottom: 1px solid var(--gray-100);
-  transition: background 0.08s;
-}
-.task-row:last-child { border-bottom: none; }
-.task-row.checked { background: var(--green-light); border-radius: var(--radius-xs); padding: 8px 6px; }
-.task-checkbox {
-  width: 20px; height: 20px;
-  border: 2px solid var(--gray-300);
-  border-radius: 5px;
-  flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer;
-  transition: all 0.12s;
-  margin-top: 1px;
-}
-.task-checkbox.checked {
-  background: var(--green);
-  border-color: var(--green);
-}
-.task-checkbox.checked::after {
-  content: '';
-  display: block;
-  width: 10px; height: 6px;
-  border-left: 2px solid white;
-  border-bottom: 2px solid white;
-  transform: rotate(-45deg) translateY(-1px);
-}
-.task-info { flex: 1; min-width: 0; }
-.task-name {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--gray-800);
-  line-height: 1.4;
-}
-.task-note {
-  font-size: 11px;
-  color: var(--gray-400);
-  margin-top: 2px;
-  line-height: 1.4;
-}
-.task-default-badge {
-  font-size: 9px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: .05em;
-  padding: 2px 5px;
-  border-radius: 3px;
-  flex-shrink: 0;
-  margin-top: 2px;
-}
-.badge-everyday { background: #e8f5ee; color: var(--green); }
-.badge-tuesday  { background: #eff6ff; color: var(--blue); }
-.badge-thursday { background: #f5f3ff; color: var(--purple); }
-
-/* ── SUBSECTION HEADERS ── */
-.subsection-label {
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .08em;
-  color: var(--gray-400);
-  margin: 12px 0 6px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.subsection-label:first-child { margin-top: 0; }
-.subsection-label::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--gray-100);
-}
-
-/* ── CUSTOM ITEM ROWS ── */
-.custom-section {
-  border-top: 1px dashed var(--gray-200);
-  padding: 10px 0 0;
-  margin-top: 8px;
-}
-.custom-label {
-  font-size: 10px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: .07em;
-  color: var(--gray-400);
-  margin-bottom: 8px;
-}
-.custom-row {
-  display: grid;
-  grid-template-columns: 1fr 70px;
-  gap: 5px;
-  margin-bottom: 5px;
-}
-.custom-row-3 {
-  display: grid;
-  grid-template-columns: 1fr 70px 1fr;
-  gap: 5px;
-  margin-bottom: 5px;
-}
-.add-btn {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 5px 0;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--green);
-  background: none;
-  border: none;
-  cursor: pointer;
-  margin-top: 4px;
-}
-.add-btn:hover { opacity: 0.7; }
-
-/* ── NUMBER STEPPER ── */
-.stepper {
-  display: flex;
-  align-items: center;
-  gap: 0;
-  border: 1px solid var(--gray-200);
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-  background: white;
-  height: 36px;
-}
-.step-btn {
-  width: 32px;
-  height: 100%;
-  border: none;
-  background: var(--gray-50);
-  font-size: 15px;
-  font-weight: 400;
-  cursor: pointer;
-  color: var(--gray-600);
-  transition: background 0.1s;
-  font-family: 'DM Sans', sans-serif;
-  flex-shrink: 0;
-}
-.step-btn:active { background: var(--gray-200); }
-.step-val {
-  flex: 1;
-  text-align: center;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--gray-800);
-  min-width: 40px;
-  border-left: 1px solid var(--gray-200);
-  border-right: 1px solid var(--gray-200);
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* ── DC GRID ── */
-.dc-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  margin-top: 10px;
-}
-.dc-item { text-align: center; }
-.dc-item-label {
-  font-size: 10px;
-  color: var(--gray-500);
-  margin-bottom: 4px;
-  font-weight: 500;
-}
-
-/* ── GROCERY SECTION (from existing app) ── */
+/* Item rows */
 .item-row {
   display: grid;
-  grid-template-columns: 20px 1fr auto auto;
+  grid-template-columns: 20px 1fr auto;
   align-items: center;
   gap: 9px;
   padding: 9px 0;
@@ -467,42 +193,106 @@ body {
   text-overflow: ellipsis;
 }
 .item-notes-small { font-size: 11px; color: var(--gray-400); margin-top: 1px; }
-.item-last { font-size: 10px; font-weight: 500; white-space: nowrap; flex-shrink: 0; color: var(--gray-400); }
-.item-last.recent { color: #166534; }
-.item-last.stale { color: var(--red); }
-.qty-controls {
-  display: flex; align-items: center;
-  opacity: 0.35; pointer-events: none;
-  transition: opacity 0.12s;
+
+/* Qty stepper — − [num label] + */
+.qty-stepper {
+  display: flex;
+  align-items: center;
   flex-shrink: 0;
+  opacity: 0.35;
+  pointer-events: none;
+  transition: opacity 0.12s;
 }
-.qty-controls.active { opacity: 1; pointer-events: all; }
-.qty-btn {
-  width: 24px; height: 24px;
+.qty-stepper.active {
+  opacity: 1;
+  pointer-events: all;
+}
+.qty-step-btn {
+  width: 22px; height: 22px;
   border: 1px solid var(--gray-200);
   background: var(--gray-50);
+  border-radius: 4px;
   font-size: 14px;
+  line-height: 1;
   cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   color: var(--gray-600);
   font-family: 'DM Sans', sans-serif;
+  flex-shrink: 0;
+  transition: background 0.1s;
 }
-.qty-btn:first-child { border-radius: 5px 0 0 5px; }
-.qty-btn:last-child { border-radius: 0 5px 5px 0; }
-.qty-val {
-  min-width: 30px;
-  text-align: center;
-  font-size: 12px;
+.qty-step-btn:active { background: var(--gray-200); }
+.qty-step-val {
+  font-size: 11px;
   font-weight: 600;
-  border-top: 1px solid var(--gray-200);
-  border-bottom: 1px solid var(--gray-200);
-  height: 24px;
-  display: flex; align-items: center; justify-content: center;
-  background: white;
   color: var(--gray-800);
+  min-width: 32px;
+  text-align: center;
+  padding: 0 3px;
+  white-space: nowrap;
 }
 
-/* ── SKIP BAR ── */
+/* Custom section */
+.custom-section {
+  border-top: 1px dashed var(--gray-200);
+  padding: 10px 0 0;
+  margin-top: 8px;
+}
+.custom-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--gray-400);
+  margin-bottom: 8px;
+}
+/* Custom item rows — 4 fields matching standard item format */
+.custom-item-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.custom-item-row-fields {
+  display: grid;
+  grid-template-columns: 1fr 60px 80px;
+  gap: 5px;
+}
+.custom-qty-wrap {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+.custom-notes-row {
+  margin: -2px 0 8px 0;
+}
+.custom-remove-btn {
+  background: none;
+  border: none;
+  color: var(--gray-400);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0 2px;
+  line-height: 1;
+  align-self: start;
+  margin-top: 8px;
+}
+.add-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 0;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--green);
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-top: 4px;
+}
+.add-btn:hover { opacity: 0.7; }
+
 .skip-bar {
   background: white;
   border-radius: var(--radius);
@@ -525,7 +315,6 @@ body {
 }
 .skip-btn:hover { background: var(--gray-50); }
 
-/* ── NOTES BAR ── */
 .notes-bar {
   background: white;
   border-radius: var(--radius);
@@ -542,7 +331,6 @@ body {
   margin-bottom: 7px;
 }
 
-/* ── FOOTER ── */
 .footer {
   position: fixed;
   bottom: 0; left: 0; right: 0;
@@ -569,27 +357,7 @@ body {
 }
 .submit-btn:active { transform: scale(0.98); }
 .submit-btn:disabled { background: var(--gray-400); cursor: not-allowed; transform: none; }
-.submit-btn.session-btn { background: var(--blue); }
-.submit-btn.session-btn:disabled { background: var(--gray-400); }
 
-/* ── BOTH SUBMITTED BANNER ── */
-.ready-banner {
-  display: none;
-  background: #022c22;
-  color: white;
-  padding: 10px 16px;
-  text-align: center;
-  font-size: 13px;
-  font-weight: 500;
-  letter-spacing: 0.01em;
-  cursor: pointer;
-  animation: slideDown 0.3s ease;
-}
-.ready-banner.visible { display: block; }
-@keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-.ready-banner span { opacity: 0.7; font-size: 11px; margin-left: 6px; }
-
-/* ── SUCCESS SCREEN ── */
 .success-screen {
   display: none;
   flex-direction: column;
@@ -602,11 +370,10 @@ body {
 .success-icon {
   width: 64px; height: 64px;
   border-radius: 50%;
+  background: var(--green-light);
   display: flex; align-items: center; justify-content: center;
   font-size: 26px;
 }
-.success-icon.green { background: var(--green-light); }
-.success-icon.blue { background: var(--blue-light); }
 .success-screen h2 {
   font-family: 'DM Serif Display', serif;
   font-size: 24px;
@@ -641,46 +408,11 @@ body {
   padding: 6px 0 2px;
 }
 
-/* ── DAY TOGGLE ── */
-.day-toggle-wrap {
-  padding: 10px 10px 0;
-  max-width: 540px;
-  margin: 0 auto;
-}
-.day-toggle {
-  background: white;
-  border-radius: var(--radius);
-  padding: 10px;
-  display: flex;
-  gap: 6px;
-  box-shadow: var(--shadow);
-  margin-bottom: 8px;
-}
-.day-btn {
-  flex: 1;
-  padding: 9px;
-  border-radius: var(--radius-sm);
-  border: none;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.15s;
-  background: var(--gray-50);
-  color: var(--gray-500);
-}
-.day-btn.active {
-  background: var(--blue);
-  color: white;
-}
-
-/* ── PROGRESS BAR ── */
 .progress-bar-wrap { background: rgba(255,255,255,0.2); border-radius: 4px; height: 3px; overflow: hidden; }
 .progress-bar-fill { background: white; height: 100%; border-radius: 4px; transition: width 0.3s; width: 0%; }
 
-/* Responsive */
 @media (min-width: 560px) {
-  .wrap, .day-toggle-wrap { padding-left: 0; padding-right: 0; }
+  .wrap { padding-left: 0; padding-right: 0; }
   .footer { padding: 14px; }
 }
 </style>
@@ -717,7 +449,7 @@ body {
 </div>
 
 <div class="success-screen" id="grocery-success">
-  <div class="success-icon green">✓</div>
+  <div class="success-icon">✓</div>
   <h2>Order submitted!</h2>
   <p>You'll receive a confirmation email shortly. Leah's list will be ready for tomorrow.</p>
   <div class="success-summary" id="grocery-summary"></div>
@@ -725,64 +457,32 @@ body {
 
 <div class="footer" id="footer">
   <div class="footer-inner">
-    <button class="submit-btn green" id="grocery-submit-btn" onclick="submitGrocery()" disabled>Select items to submit</button>
+    <button class="submit-btn" id="grocery-submit-btn" onclick="submitGrocery()" disabled>Select items to submit</button>
   </div>
 </div>
 
 <script>
-// ─────────────────────────────────────────────────────────────────────────────
-// CONFIG
-// ─────────────────────────────────────────────────────────────────────────────
+// ─── CONFIG ────────────────────────────────────────────────────────────────────
 const params = new URLSearchParams(window.location.search);
 const GROCERY_WEBHOOK = params.get('hook') || '';
 
-// ─────────────────────────────────────────────────────────────────────────────
-// STATE
-// ─────────────────────────────────────────────────────────────────────────────
+// ─── STATE ────────────────────────────────────────────────────────────────────
 let selections = {};
 let customItems = {};
-let currentDay = 'Tuesday';
 
-// ─────────────────────────────────────────────────────────────────────────────
-// HELPERS
-// ─────────────────────────────────────────────────────────────────────────────
+// ─── HELPERS ──────────────────────────────────────────────────────────────────
 function today() {
   return new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' });
 }
 function detectDay() {
-  const dow = new Date().getDay(); // 0=Sun...6=Sat
+  const dow = new Date().getDay();
   return (dow === 3 || dow === 4) ? 'Thursday' : 'Tuesday';
-}
-function daysSince(dateStr) {
-  if (!dateStr) return null;
-  const d = new Date(dateStr);
-  if (isNaN(d)) return null;
-  return Math.floor((Date.now() - d.getTime()) / 86400000);
-}
-function lastBoughtLabel(dateStr) {
-  const d = daysSince(dateStr);
-  if (d === null) return { text:'', cls:'' };
-  if (d === 0) return { text:'Today', cls:'recent' };
-  if (d === 1) return { text:'Yesterday', cls:'recent' };
-  if (d <= 7) return { text:`${d}d ago`, cls:'recent' };
-  if (d <= 14) return { text:`${d}d ago`, cls:'' };
-  return { text:`${d}d ago`, cls:'stale' };
 }
 function escHtml(s) {
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
-function toggleCard(id) {
-  const body = document.getElementById('body-'+id);
-  const chev = document.getElementById('chev-'+id);
-  if (!body) return;
-  const open = body.classList.contains('open');
-  body.classList.toggle('open', !open);
-  if (chev) chev.classList.toggle('open', !open);
-}
 
-// ─────────────────────────────────────────────────────────────────────────────
-// GROCERY SECTION (from existing app)
-// ─────────────────────────────────────────────────────────────────────────────
+// ─── SECTIONS ────────────────────────────────────────────────────────────────
 const SECTION_CONFIG = [
   { key:'Fruits',              emoji:'🍓', label:'Fruits' },
   { key:'Vegetables',          emoji:'🥦', label:'Vegetables' },
@@ -796,8 +496,10 @@ const SECTION_CONFIG = [
   { key:'Snacks',              emoji:'🍿', label:'Snacks' },
   { key:'Household & Baby',    emoji:'🏠', label:'Household & Baby' },
 ];
+
 const FREQ_ORDER = {'Every week':0,'Most weeks':1,'Occasional':2,'Rare':3};
 
+// ─── BUILD ───────────────────────────────────────────────────────────────────
 function buildGrocery() {
   const wrap = document.getElementById('grocery-sections');
   wrap.innerHTML = '';
@@ -805,28 +507,43 @@ function buildGrocery() {
   customItems = {};
   SECTION_CONFIG.forEach(s => { customItems[s.key] = []; });
 
+  // Only show Whole Foods items in the app (Jewel/CVS items are session-planner errands)
+  const wfItems = GROCERY_ITEMS.filter(i => i.store === 'Whole Foods');
+
   const bySection = {};
   SECTION_CONFIG.forEach(s => { bySection[s.key] = []; });
-  FALLBACK_ITEMS.forEach(item => {
+  wfItems.forEach(item => {
     if (bySection[item.section]) bySection[item.section].push(item);
   });
   SECTION_CONFIG.forEach(sc => {
-    bySection[sc.key].sort((a,b) => (FREQ_ORDER[a.frequency]??99)-(FREQ_ORDER[b.frequency]??99));
+    bySection[sc.key].sort((a,b) => {
+      const fo = (FREQ_ORDER[a.frequency]??99) - (FREQ_ORDER[b.frequency]??99);
+      if (fo !== 0) return fo;
+      return (a.sortOrder??99) - (b.sortOrder??99);
+    });
   });
 
-  FALLBACK_ITEMS.forEach(item => {
-    selections[item.id] = { checked:false, qty:item.quantity||'1', name:item.name, section:item.section, qtyType:item.qtyType||'count', clarifier:item.clarifier||'', lastPurchased:item.lastPurchased||'' };
+  wfItems.forEach(item => {
+    // qty initialized to formatted display string so submitted value always matches what stepper shows
+    selections[item.id] = {
+      checked: false,
+      qty: formatQty(parseQty(item.quantity)),
+      name: item.name,
+      section: item.section,
+      notes: item.notes,
+      store: item.store,
+    };
   });
 
   SECTION_CONFIG.forEach((sc, idx) => {
     const items = bySection[sc.key];
-    const sec = buildGrocerySection(sc, items, idx===0);
+    const sec = buildSection(sc, items, idx === 0);
     wrap.appendChild(sec);
   });
-  updateGroceryTotals();
+  updateTotals();
 }
 
-function buildGrocerySection(sc, items, isOpen) {
+function buildSection(sc, items, isOpen) {
   const sec = document.createElement('div');
   sec.className = 'card';
   const safeKey = sc.key.replace(/\W/g,'-');
@@ -860,85 +577,134 @@ function buildGrocerySection(sc, items, isOpen) {
   body.className = `card-body ${isOpen?'open':''}`;
   body.id = 'gbody-'+safeKey;
 
-  items.forEach(item => {
-    const row = buildItemRow(item);
-    body.appendChild(row);
-  });
+  items.forEach(item => body.appendChild(buildItemRow(item)));
 
-  // Custom section
+  // Custom add section
   const customWrap = document.createElement('div');
   customWrap.className = 'custom-section';
   customWrap.innerHTML = `
     <div class="custom-label">Anything else from ${sc.label}?</div>
     <div id="gcustom-rows-${safeKey}"></div>
-    <button class="add-btn" onclick="addGCustomRow('${sc.key}')">+ Add item</button>
+    <button class="add-btn" onclick="addCustomRow('${sc.key}')">+ Add item</button>
   `;
   body.appendChild(customWrap);
-  addGCustomRow(sc.key, body.querySelector(`#gcustom-rows-${safeKey}`));
+  addCustomRow(sc.key, body.querySelector(`#gcustom-rows-${safeKey}`));
 
   sec.appendChild(body);
   return sec;
+}
+
+// Split "Blueberries (jumbo)" → base "Blueberries", paren "(jumbo)"
+function splitItemName(name) {
+  const m = name.match(/^(.*?)\s*(\([^)]+\))\s*$/);
+  if (m) return { base: m[1], paren: m[2] };
+  return { base: name, paren: '' };
+}
+
+// Three stepping modes:
+//   lb/pound  → steps in 0.25 lb increments, displays as fractions ("1/2 lb", "1 1/4 lb")
+//   n-pack    → integer steps, label preserved ("1 8-pack" → "2 8-pack")
+//   int+label → integer steps, label preserved ("2 heads" → "3 heads")
+//   fixed     → no buttons (anything unrecognised)
+// LB_RE handles: "0.5 lb", "1 lb", "1/4 lb", "3/4 lb", "1 1/4 lb"
+const LB_RE   = /^([\d]+(?:\/[\d]+)?|[\d]+\s+[\d]+\/[\d]+|[\d]*\.[\d]+)\s*(lb|lbs|pound|pounds)$/i;
+const PACK_RE = /^(\d+)\s+(\d+[-–][\w]+)$/;   // "1 8-pack", "1 12-pack", "1 4-pack"
+const INT_RE  = /^(\d+)(\s+(.+))?$/;
+
+// Convert a fraction/mixed-number string to a decimal
+function parseLbNum(s) {
+  s = s.trim();
+  // Mixed number: "1 1/4"
+  const mixed = s.match(/^(\d+)\s+(\d+)\/(\d+)$/);
+  if (mixed) return parseInt(mixed[1]) + parseInt(mixed[2]) / parseInt(mixed[3]);
+  // Simple fraction: "1/4", "3/4"
+  const frac = s.match(/^(\d+)\/(\d+)$/);
+  if (frac) return parseInt(frac[1]) / parseInt(frac[2]);
+  // Decimal or integer
+  return parseFloat(s);
+}
+
+function parseQty(s) {
+  if (!s) return { mode:'int', num:1, label:'' };
+  s = s.trim();
+  let m;
+  if ((m = s.match(LB_RE)))   return { mode:'lb',   num: parseLbNum(m[1]) };
+  if ((m = s.match(PACK_RE))) return { mode:'pack', num: parseInt(m[1]), pack: m[2] };
+  if ((m = s.match(INT_RE)))  return { mode:'int',  num: parseInt(m[1]), label: m[3] || '' };
+  return { mode:'fixed', label: s };
+}
+
+function formatQty(p) {
+  if (p.mode === 'lb') {
+    const fracs = { 0.25:'1/4', 0.5:'1/2', 0.75:'3/4' };
+    const whole = Math.floor(p.num);
+    const frac  = Math.round((p.num - whole) * 4) / 4;
+    const fracStr = fracs[frac] || '';
+    const numStr = whole > 0 && fracStr ? `${whole} ${fracStr}` : (fracStr || String(whole));
+    return `${numStr} lb`;
+  }
+  if (p.mode === 'pack') return `${p.num} ${p.pack}`;
+  if (p.mode === 'int')  return p.label ? `${p.num} ${p.label}` : String(p.num);
+  return p.label;
 }
 
 function buildItemRow(item) {
   const row = document.createElement('div');
   row.className = 'item-row';
   row.id = 'grow-'+item.id;
-  const lb = lastBoughtLabel(item.lastPurchased);
-  const qtyDisplay = item.qtyType==='lb' ? (item.quantity||'1')+' lb' : (item.quantity||'1');
-  const clarifier = item.clarifier ? ` <span style="font-weight:400;color:var(--gray-400);font-size:11px;">(${escHtml(item.clarifier)})</span>` : '';
+  const { base, paren } = splitItemName(item.name);
+
+  const nameHtml = escHtml(base)
+    + (paren ? ` <span style="font-weight:400;color:var(--gray-400);font-size:11px;">${escHtml(paren)}</span>` : '');
+
+  const parsed = parseQty(item.quantity);
+  const canStep = parsed.mode !== 'fixed';
+  const qtyLabel = escHtml(formatQty(parsed));
+
   row.innerHTML = `
-    <div class="checkbox" id="gchk-${item.id}" onclick="toggleGItem('${item.id}')"></div>
+    <div class="checkbox" id="gchk-${item.id}" onclick="toggleItem('${item.id}')"></div>
     <div class="item-info">
-      <div class="item-name">${escHtml(item.name)}${clarifier}</div>
+      <div class="item-name">${nameHtml}</div>
       ${item.notes ? `<div class="item-notes-small">${escHtml(item.notes)}</div>` : ''}
     </div>
-    <div class="qty-controls" id="gqty-${item.id}">
-      <button class="qty-btn" onclick="adjGQty('${item.id}',-1)">−</button>
-      <div class="qty-val" id="gqval-${item.id}">${qtyDisplay}</div>
-      <button class="qty-btn" onclick="adjGQty('${item.id}',1)">+</button>
+    <div class="qty-stepper" id="gqty-${item.id}">
+      ${canStep ? `<button class="qty-step-btn" onclick="stepQty('${item.id}',-1)">−</button>` : ''}
+      <div class="qty-step-val" id="gqval-${item.id}">${qtyLabel}</div>
+      ${canStep ? `<button class="qty-step-btn" onclick="stepQty('${item.id}',1)">+</button>` : ''}
     </div>
-    <div class="item-last ${lb.cls}">${lb.text}</div>
   `;
   return row;
 }
 
-function toggleGItem(id) {
+function toggleItem(id) {
   const sel = selections[id];
   if (!sel) return;
   sel.checked = !sel.checked;
   document.getElementById('gchk-'+id)?.classList.toggle('checked', sel.checked);
   document.getElementById('grow-'+id)?.classList.toggle('checked', sel.checked);
   document.getElementById('gqty-'+id)?.classList.toggle('active', sel.checked);
-  updateGSectionBadge(sel.section);
-  updateGroceryTotals();
+  updateSectionBadge(sel.section);
+  updateTotals();
 }
 
-function adjGQty(id, delta) {
+function stepQty(id, delta) {
   const sel = selections[id];
   if (!sel || !sel.checked) return;
-  if (sel.qtyType === 'bread') {
-    sel.qty = sel.qty === '1' ? '1/2' : '1';
-    document.getElementById('gqval-'+id).textContent = sel.qty;
-    return;
+  const p = parseQty(sel.qty);
+  if (p.mode === 'fixed') return;
+  if (p.mode === 'lb') {
+    p.num = Math.max(0.25, Math.round((p.num + delta * 0.25) * 4) / 4);
+  } else {
+    p.num = Math.max(1, p.num + delta);
   }
-  if (sel.qtyType === 'lb') {
-    const num = parseFloat(sel.qty) || 0.25;
-    const next = Math.max(0.25, Math.round((num + delta * 0.25) * 4) / 4);
-    const fracs = { 0.25:'1/4', 0.5:'1/2', 0.75:'3/4' };
-    const whole = Math.floor(next);
-    const frac = Math.round((next - whole) * 4) / 4;
-    const fracStr = fracs[frac] || '';
-    sel.qty = whole > 0 && fracStr ? `${whole} ${fracStr}` : (fracStr || String(whole));
-    document.getElementById('gqval-'+id).textContent = sel.qty + ' lb';
-    return;
-  }
-  const num = parseFloat(sel.qty) || 1;
-  sel.qty = String(Math.max(1, num + delta));
-  document.getElementById('gqval-'+id).textContent = sel.qty;
+  sel.qty = formatQty(p);
+  const valEl = document.getElementById('gqval-'+id);
+  if (valEl) valEl.textContent = sel.qty;
 }
 
-function updateGSectionBadge(sectionKey) {
+
+
+function updateSectionBadge(sectionKey) {
   const safeKey = sectionKey.replace(/\W/g,'-');
   const badge = document.getElementById('gbadge-'+safeKey);
   if (!badge) return;
@@ -947,198 +713,336 @@ function updateGSectionBadge(sectionKey) {
   badge.classList.toggle('visible', count > 0);
 }
 
-function addGCustomRow(sectionKey, containerEl) {
+function addCustomRow(sectionKey, containerEl) {
   const safeKey = sectionKey.replace(/\W/g,'-');
   const container = containerEl || document.getElementById('gcustom-rows-'+safeKey);
   if (!container) return;
   const idx = container.children.length;
+  const rowId = `cr-${safeKey}-${idx}`;
+
+  if (!customItems[sectionKey]) customItems[sectionKey] = [];
+  customItems[sectionKey][idx] = { name:'', qtyNum:'1', qtyLabel:'', notes:'' };
+
   const rowEl = document.createElement('div');
-  rowEl.className = 'custom-row-3';
+  rowEl.id = rowId;
+
   rowEl.innerHTML = `
-    <input class="input" type="text" placeholder="Item name" style="font-size:13px;" oninput="syncGCustom('${sectionKey}',${idx},'name',this.value)" />
-    <input class="input" type="text" placeholder="Qty" style="font-size:13px;" oninput="syncGCustom('${sectionKey}',${idx},'qty',this.value)" />
-    <input class="input" type="text" placeholder="Notes" style="font-size:13px;" oninput="syncGCustom('${sectionKey}',${idx},'notes',this.value)" />
+    <div class="custom-item-row">
+      <div style="flex:1;min-width:0;">
+        <div class="custom-item-row-fields">
+          <input class="input" type="text" placeholder="Item name (detail)"
+                 style="font-size:13px;"
+                 oninput="syncCustom('${sectionKey}',${idx},'name',this.value)" />
+          <input class="input" type="text" placeholder="Qty" inputmode="decimal"
+                 style="font-size:13px;text-align:center;"
+                 value="1"
+                 oninput="syncCustom('${sectionKey}',${idx},'qtyNum',this.value)" />
+          <input class="input" type="text" placeholder="unit / lb"
+                 style="font-size:13px;"
+                 oninput="syncCustom('${sectionKey}',${idx},'qtyLabel',this.value)" />
+        </div>
+        <div class="custom-notes-row">
+          <input class="input" type="text" placeholder="Notes (optional — appears below item)"
+                 style="font-size:12px;margin-top:4px;"
+                 oninput="syncCustom('${sectionKey}',${idx},'notes',this.value)" />
+        </div>
+      </div>
+      <button class="custom-remove-btn" onclick="removeCustomRow('${sectionKey}',${idx},'${rowId}')" title="Remove">×</button>
+    </div>
   `;
   container.appendChild(rowEl);
-  if (!customItems[sectionKey]) customItems[sectionKey] = [];
-  customItems[sectionKey][idx] = { name:'', qty:'', notes:'' };
 }
 
-function syncGCustom(sectionKey, idx, field, value) {
+function removeCustomRow(sectionKey, idx, rowId) {
+  const el = document.getElementById(rowId);
+  if (el) el.remove();
+  if (customItems[sectionKey] && customItems[sectionKey][idx]) {
+    customItems[sectionKey][idx] = { name:'', qtyNum:'', qtyLabel:'', notes:'' };
+  }
+  updateTotals();
+}
+
+function syncCustom(sectionKey, idx, field, value) {
   if (!customItems[sectionKey]) customItems[sectionKey] = [];
-  if (!customItems[sectionKey][idx]) customItems[sectionKey][idx] = {name:'',qty:'',notes:''};
+  if (!customItems[sectionKey][idx]) customItems[sectionKey][idx] = {name:'',qtyNum:'1',qtyLabel:'',notes:''};
   customItems[sectionKey][idx][field] = value;
-  updateGroceryTotals();
+  updateTotals();
 }
 
-function updateGroceryTotals() {
-  if (activeTab !== 'grocery') return;
+// Build a well-formed quantity string from qtyNum + qtyLabel
+// Mirrors the formatQty logic for standard items:
+//   "2" + "heads" → "2 heads"
+//   "1/2" + "lb"  → "1/2 lb"  (lb triggers fraction parsing in the stepper display)
+//   "1"   + ""    → "1"
+function buildCustomQty(r) {
+  const num   = (r.qtyNum || '1').trim();
+  const label = (r.qtyLabel || '').trim();
+  if (!label) return num;
+  return `${num} ${label}`;
+}
+
+function updateTotals() {
   const checked = Object.values(selections).filter(s => s.checked).length;
   let customCount = 0;
-  Object.values(customItems).forEach(rows => { rows.forEach(r => { if (r&&r.name&&r.name.trim()) customCount++; }); });
+  Object.values(customItems).forEach(rows => {
+    rows.forEach(r => { if (r && r.name && r.name.trim()) customCount++; });
+  });
   const total = checked + customCount;
-  const total2 = Object.values(selections).filter(i => i.section !== 'Jewel').length;
-  document.getElementById('header-badge').textContent = total===0 ? '0 items' : `${total} item${total!==1?'s':''}`;
-  document.getElementById('progress-bar').style.width = total2>0 ? `${Math.min(100,(checked/total2)*100)}%` : '0%';
+  const totalPossible = Object.values(selections).length;
+
+  document.getElementById('header-badge').textContent = total === 0 ? '0 items' : `${total} item${total !== 1 ? 's' : ''}`;
+  document.getElementById('progress-bar').style.width = totalPossible > 0 ? `${Math.min(100, (checked / totalPossible) * 100)}%` : '0%';
+
   const btn = document.getElementById('grocery-submit-btn');
   btn.disabled = total === 0;
-  btn.textContent = total===0 ? 'Select items to submit' : `Submit ${total} item${total!==1?'s':''}`;
+  btn.textContent = total === 0 ? 'Select items to submit' : `Submit ${total} item${total !== 1 ? 's' : ''}`;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// GROCERY SUBMIT
-// ─────────────────────────────────────────────────────────────────────────────
+// ─── SUBMIT ───────────────────────────────────────────────────────────────────
 async function skipGroceries() {
   if (!confirm('Skip groceries this week? This will notify Leah that no Whole Foods run is needed.')) return;
-  const payload = { submittedAt: new Date().toISOString(), dayOfWeek: currentDay, skipped: true, selectedItems:[], customItems:[], totalItems:0, orderNotes:'' };
-  if (GROCERY_WEBHOOK) fetch(GROCERY_WEBHOOK, { method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body: JSON.stringify(payload) }).catch(()=>{});
-  showGrocerySuccess([], []);
+  const payload = {
+    submittedAt: new Date().toISOString(),
+    dayOfWeek: detectDay(),
+    skipped: true,
+    selectedItems: [],
+    customItems: [],
+    totalItems: 0,
+    orderNotes: ''
+  };
+  if (GROCERY_WEBHOOK) {
+    fetch(GROCERY_WEBHOOK, { method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body: JSON.stringify(payload) }).catch(()=>{});
+  }
+  showSuccess([], []);
 }
 
 function submitGrocery() {
   const btn = document.getElementById('grocery-submit-btn');
-  btn.disabled = true; btn.textContent = 'Submitting...';
-  const selected = Object.entries(selections).filter(([,s]) => s.checked).map(([id,s]) => ({ notionPageId:id, name:s.name, section:s.section, quantity:s.qty, lastPurchased: new Date().toISOString().slice(0,10) }));
+  btn.disabled = true;
+  btn.textContent = 'Submitting...';
+
+  // Each selected item carries:
+  //   notionPageId, name, section, store, quantity (full string), notes, lastPurchased
+  const selected = Object.entries(selections)
+    .filter(([, s]) => s.checked)
+    .map(([id, s]) => ({
+      notionPageId: id,
+      name: s.name,
+      section: s.section,
+      store: s.store || 'Whole Foods',
+      quantity: s.qty,
+      notes: s.notes || '',
+    }));
+
   const custom = [];
-  Object.entries(customItems).forEach(([section,rows]) => { rows.forEach(r => { if (r.name&&r.name.trim()) custom.push({name:r.name.trim(), section, quantity:r.qty||'1', notes:r.notes||'', isNew:true}); }); });
-  const notes = document.getElementById('grocery-notes')?.value?.trim()||'';
-  const payload = { submittedAt: new Date().toISOString(), dayOfWeek: currentDay, selectedItems:selected, customItems:custom, totalItems:selected.length+custom.length, orderNotes:notes };
-  if (GROCERY_WEBHOOK) fetch(GROCERY_WEBHOOK, { method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body: JSON.stringify(payload) }).catch(()=>{});
-  showGrocerySuccess(selected, custom);
+  Object.entries(customItems).forEach(([section, rows]) => {
+    rows.forEach(r => {
+      if (r && r.name && r.name.trim()) {
+        custom.push({
+          name: r.name.trim(),
+          section,
+          quantity: buildCustomQty(r),
+          notes: r.notes || '',
+          isNew: true,
+          store: 'Whole Foods',
+        });
+      }
+    });
+  });
+
+  const notes = document.getElementById('grocery-notes')?.value?.trim() || '';
+
+  const payload = {
+    submittedAt: new Date().toISOString(),
+    dayOfWeek: detectDay(),
+    selectedItems: selected,
+    customItems: custom,
+    totalItems: selected.length + custom.length,
+    orderNotes: notes
+  };
+
+  if (GROCERY_WEBHOOK) {
+    fetch(GROCERY_WEBHOOK, { method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body: JSON.stringify(payload) }).catch(()=>{});
+  }
+  showSuccess(selected, custom);
 }
 
-function showGrocerySuccess(selected, custom) {
+function showSuccess(selected, custom) {
   document.getElementById('grocery-main').style.display = 'none';
   document.getElementById('grocery-submit-btn').style.display = 'none';
   document.getElementById('grocery-success').classList.add('visible');
+
   const summary = document.getElementById('grocery-summary');
   summary.innerHTML = '';
-  const allChosen = [...selected.map(s=>({name:s.name,qty:s.quantity,section:s.section})), ...custom.map(c=>({name:c.name+'✦',qty:c.quantity,section:c.section}))];
+  const allChosen = [
+    ...selected.map(s => ({ name: s.name, qty: s.quantity, section: s.section })),
+    ...custom.map(c => ({ name: c.name + ' ✦', qty: c.quantity, section: c.section }))
+  ];
   const grouped = {};
-  allChosen.forEach(item => { if (!grouped[item.section]) grouped[item.section]=[]; grouped[item.section].push(item); });
+  allChosen.forEach(item => {
+    if (!grouped[item.section]) grouped[item.section] = [];
+    grouped[item.section].push(item);
+  });
   Object.entries(grouped).forEach(([section, items]) => {
-    const sh = document.createElement('div'); sh.className='success-sec'; sh.textContent=section; summary.appendChild(sh);
-    items.forEach(item => { const row=document.createElement('div'); row.className='success-row'; row.innerHTML='<span>'+escHtml(item.name)+'</span><span style="color:var(--gray-400);font-size:11px;">'+escHtml(item.qty)+'</span>'; summary.appendChild(row); });
+    const sh = document.createElement('div');
+    sh.className = 'success-sec';
+    sh.textContent = section;
+    summary.appendChild(sh);
+    items.forEach(item => {
+      const row = document.createElement('div');
+      row.className = 'success-row';
+      row.innerHTML = `<span>${escHtml(item.name)}</span><span style="color:var(--gray-400);font-size:11px;">${escHtml(item.qty)}</span>`;
+      summary.appendChild(row);
+    });
   });
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// INIT
-// ─────────────────────────────────────────────────────────────────────────────
-function updateGroceryTotals() {
-  const checked = Object.values(selections).filter(s => s.checked).length;
-  let customCount = 0;
-  Object.values(customItems).forEach(rows => { rows.forEach(r => { if (r&&r.name&&r.name.trim()) customCount++; }); });
-  const total = checked + customCount;
-  const total2 = Object.values(selections).filter(i => i.section !== 'Jewel').length;
-  document.getElementById('header-badge').textContent = total===0 ? '0 items' : total+' item'+(total!==1?'s':'');
-  document.getElementById('progress-bar').style.width = total2>0 ? Math.min(100,(checked/total2)*100)+'%' : '0%';
-  const btn = document.getElementById('grocery-submit-btn');
-  btn.disabled = total === 0;
-  btn.textContent = total===0 ? 'Select items to submit' : 'Submit '+total+' item'+(total!==1?'s':'');
-}
-
+// ─── INIT ─────────────────────────────────────────────────────────────────────
 function init() {
   document.getElementById('header-date').textContent = today();
-  currentDay = detectDay();
   buildGrocery();
-  updateGroceryTotals();
 }
-
 document.addEventListener('DOMContentLoaded', init);
 
-// ─────────────────────────────────────────────────────────────────────────────
-// FALLBACK GROCERY ITEMS
-// ─────────────────────────────────────────────────────────────────────────────
-const FALLBACK_ITEMS = [
-  { id:'32660659-6369-8132-9178-e1366322796d', name:'Bananas', section:'Fruits', frequency:'Every week', quantity:'2', qtyType:'count', clarifier:'', notes:'Mix of ripe and firm', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-81d0-8350-edbeab362284', name:'Mixed melon', section:'Fruits', frequency:'Every week', quantity:'1', qtyType:'count', clarifier:'container', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-8127-89d0-f0ad27cea87b', name:'Blueberries', section:'Fruits', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'container', notes:'Jumbo', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-814d-a5bb-db4f30fd7e8a', name:'Strawberries', section:'Fruits', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'container', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-816b-b40d-d405ac6950c4', name:'Granny Smith apples', section:'Fruits', frequency:'Occasional', quantity:'5', qtyType:'count', clarifier:'', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-8117-8acd-e28ad94c6ce8', name:'Grapes', section:'Fruits', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'bag', notes:'Green', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-8120-afde-c23ee66469f1', name:'Mango', section:'Fruits', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-81b4-9d01-c38df7d8ac27', name:'Limes', section:'Fruits', frequency:'Occasional', quantity:'4', qtyType:'count', clarifier:'', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-8199-8918-d200bf0f0964', name:'Lemons', section:'Fruits', frequency:'Occasional', quantity:'4', qtyType:'count', clarifier:'', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-81ea-b6aa-f9dc3dba476f', name:'Broccoli', section:'Vegetables', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'head', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-81a2-b969-f1efe763da59', name:'Purple cauliflower', section:'Vegetables', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'head', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-8165-923c-cc70d2554613', name:'English cucumber', section:'Vegetables', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-8198-a685-f44e04c29b00', name:'Carrots', section:'Vegetables', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'bunch', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-811b-8893-f355a66203b8', name:'Baby yellow potatoes', section:'Vegetables', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'small bag', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-8115-a37a-cb1df84f4a8e', name:'Avocado', section:'Vegetables', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'', notes:'Firm ok if not eating immediately', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-81a4-ac87-de8082563250', name:'Red bell pepper', section:'Vegetables', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-81cc-ba44-d24b3ee88885', name:'Red onion', section:'Vegetables', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-8152-9d2a-cdc46874d624', name:'Sweet onion', section:'Vegetables', frequency:'Occasional', quantity:'2', qtyType:'count', clarifier:'', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-81b7-b095-e781a4cbe023', name:'Iceberg lettuce', section:'Vegetables', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'head', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-81da-b07c-f69e7b66bc95', name:'Cherry tomatoes', section:'Vegetables', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'pint', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-81e8-8407-c11d52073067', name:'Tomatoes', section:'Vegetables', frequency:'Occasional', quantity:'2', qtyType:'count', clarifier:'slicing', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-810d-b105-d1e3de71bf2f', name:'Mushrooms', section:'Vegetables', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'container', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-814f-acbf-eae1894ab9a4', name:'Snap or snow peas', section:'Vegetables', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'small bag', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-81b3-9dda-dd61e9f3e495', name:'Radishes', section:'Vegetables', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'bunch', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-812e-8b60-f6ce8c91ef08', name:'Scallions', section:'Vegetables', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'bunch', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-8128-b700-e0b256cb5b8a', name:'Fennel', section:'Vegetables', frequency:'Rare', quantity:'1', qtyType:'count', clarifier:'large bulb', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-814f-a2da-d660ac9c4550', name:'Jalapeño', section:'Vegetables', frequency:'Rare', quantity:'2', qtyType:'count', clarifier:'', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-8170-9888-d6e436183b95', name:'Corn', section:'Vegetables', frequency:'Rare', quantity:'4', qtyType:'count', clarifier:'ears', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-81c2-ad07-e6b4f5232467', name:'Russet potatoes', section:'Vegetables', frequency:'Rare', quantity:'3', qtyType:'count', clarifier:'', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-81fa-b20d-f58e4665e6eb', name:'Sweet potato', section:'Vegetables', frequency:'Rare', quantity:'1', qtyType:'count', clarifier:'', notes:'The usual one for pancakes', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-8184-bedf-c3d4f509014d', name:'Boneless skinless chicken thighs', section:'Protein', frequency:'Every week', quantity:'1', qtyType:'count', clarifier:'pack', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-8127-a18c-e843579e3bb4', name:'Boneless skinless chicken breasts', section:'Protein', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'pack', notes:'Ideally 3 breasts', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-8125-9836-f7385a2d80df', name:'Bacon', section:'Protein', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'pack', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-81b2-b9d7-d600dfe03a74', name:'Salmon filet', section:'Protein', frequency:'Occasional', quantity:'0.5', qtyType:'lb', clarifier:'', notes:'Ask to remove skin at fish counter', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-81e4-9f34-db729b13dab4', name:'Scallops', section:'Protein', frequency:'Occasional', quantity:'0.5', qtyType:'lb', clarifier:'small', notes:'From fish counter', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-8150-b93e-db816233d8e6', name:'Shrimp', section:'Protein', frequency:'Occasional', quantity:'0.5', qtyType:'lb', clarifier:'peeled, deveined', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-8103-89cf-c69ca4ddc163', name:'Boneless pork loin chops', section:'Protein', frequency:'Occasional', quantity:'1', qtyType:'lb', clarifier:'', notes:'The skinnier kind if 2 options', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-810e-8738-f3defa91650f', name:'Skirt steak', section:'Protein', frequency:'Occasional', quantity:'1', qtyType:'lb', clarifier:'', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-81e9-9c93-d24f120ddfed', name:'Cod', section:'Protein', frequency:'Occasional', quantity:'1', qtyType:'lb', clarifier:'Atlantic', notes:'Not portioned — whole strip; sub halibut if unavailable', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-8181-a089-e63fe3dfb381', name:'Beef kabob', section:'Protein', frequency:'Rare', quantity:'1', qtyType:'count', clarifier:'', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-81ce-8094-ccff47e3558e', name:'Chicken kabob', section:'Protein', frequency:'Rare', quantity:'2', qtyType:'count', clarifier:'', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-8187-8d58-df60d713a626', name:'Jalapeño chicken sausage', section:'Protein', frequency:'Rare', quantity:'1', qtyType:'count', clarifier:'package', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-81ae-9bc2-cf8bf8d47abb', name:'Whole milk', section:'Dairy', frequency:'Every week', quantity:'1', qtyType:'count', clarifier:'half gallon', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-8127-b135-fa9d2c72d9fd', name:'Eggs', section:'Dairy', frequency:'Every week', quantity:'1', qtyType:'count', clarifier:'dozen', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-8141-9b96-d69fe9854583', name:'Butter', section:'Dairy', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'pack, unsalted', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-81b3-9d4e-f3d6ad562a0a', name:'Shredded mexican cheese', section:'Dairy', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'bag', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-81e6-88e8-e63f238a6b78', name:'Yellow american cheese', section:'Deli', frequency:'Most weeks', quantity:'0.25', qtyType:'lb', clarifier:'deli counter', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-816a-abbe-fb71f72732da', name:'Black Forest ham', section:'Deli', frequency:'Most weeks', quantity:'1', qtyType:'lb', clarifier:'sliced thin', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-8150-bd04-eb8237a585aa', name:'Chicken salad', section:'Deli', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'medium container', notes:'Classic, from deli', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-81bc-b20c-dd64528f77e6', name:'Oven roasted turkey', section:'Deli', frequency:'Occasional', quantity:'1', qtyType:'lb', clarifier:'', notes:'In-house WF; sub peppered roasted if unavailable', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-810f-81af-d0a594008da9', name:'Ice cream cookie sandwiches', section:'Frozen', frequency:'Every week', quantity:'1', qtyType:'count', clarifier:'box', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-815a-9f88-fdc377dfdf80', name:"Jeni's Salted Caramel ice cream", section:'Frozen', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'pint', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-81dc-98f8-d9de14e4437c', name:"Jeni's Blackout Chocolate Cake ice cream", section:'Frozen', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'pint', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-817e-8886-fcbdfffbb366', name:'Frozen mixed berries', section:'Frozen', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'bag', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-81f6-9218-de9cea2b24df', name:'Sourdough bread', section:'Grains & Bread', frequency:'Every week', quantity:'1', qtyType:'bread', clarifier:'sliced, from bakery', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-8122-aabd-f34a027a6cf4', name:'French bread', section:'Grains & Bread', frequency:'Most weeks', quantity:'1', qtyType:'bread', clarifier:'sliced', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-812e-b0eb-d28e3d92d10e', name:"Nature's Own Brioche buns", section:'Grains & Bread', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'package', notes:'Sub similar if unavailable — let us know', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-815b-affd-f600076c6699', name:'Rolled oats', section:'Grains & Bread', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'bag', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-8160-94af-d7eeffea0cb9', name:'De Cecco Cavatappi pasta', section:'Grains & Bread', frequency:'Rare', quantity:'1', qtyType:'count', clarifier:'box', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-81b1-9cb6-c98aac785799', name:'Spindrift Grapefruit', section:'Beverages', frequency:'Every week', quantity:'3', qtyType:'count', clarifier:'singles or 1 pack', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-817d-ad73-f98df952b6b0', name:'Spindrift Lemon', section:'Beverages', frequency:'Most weeks', quantity:'3', qtyType:'count', clarifier:'', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-8156-880d-c582e32be79c', name:'Spindrift Raspberry/Lime', section:'Beverages', frequency:'Most weeks', quantity:'3', qtyType:'count', clarifier:'', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-818b-97e6-ef86563e3937', name:'Topo Chico Lime', section:'Beverages', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'12-pack', notes:'Sometimes out of stock', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-81df-878f-c074cf8b380d', name:'Distilled water', section:'Beverages', frequency:'Occasional', quantity:'2', qtyType:'count', clarifier:'gallons', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-8134-829e-d77dd228c4b4', name:'Whole coffee beans', section:'Beverages', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'bag', notes:'Light or medium roast', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-81ed-8c50-e56868910807', name:'WF Peanut Butter', section:'Condiments & Pantry', frequency:'Most weeks', quantity:'2', qtyType:'count', clarifier:'jars', notes:'Green top, unsweetened unsalted', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-81dd-8d7a-e62db830642f', name:'WF Almond Butter', section:'Condiments & Pantry', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'jar', notes:'Green top, organic creamy unsalted', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-814e-9114-ff11cda777ae', name:"Rao's Alfredo sauce", section:'Condiments & Pantry', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'jar', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-81cb-8a71-d56a8fdb1fcf', name:'Sesame & Ginger dressing', section:'Condiments & Pantry', frequency:'Occasional', quantity:'2', qtyType:'count', clarifier:'bottles', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-816d-b26d-d007475a59d3', name:'Cholula hot sauce', section:'Condiments & Pantry', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'bottle', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-8128-884e-c7dbe3bf3669', name:'Tomato paste', section:'Condiments & Pantry', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'tube', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-81a4-b4c2-ed8877702bfe', name:'Diced green chiles', section:'Condiments & Pantry', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'small jar', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-817a-b064-d79b578fdae4', name:'Enchilada sauce', section:'Condiments & Pantry', frequency:'Occasional', quantity:'2', qtyType:'count', clarifier:'containers', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-81c1-9341-cd7cc829775d', name:'Sour cream', section:'Condiments & Pantry', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'small container', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-8116-9b1c-c8ff25cc7ad2', name:'Crumbled feta', section:'Condiments & Pantry', frequency:'Occasional', quantity:'1', qtyType:'count', clarifier:'small container', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-81d2-9d75-c4d12450db8b', name:'Avocado oil spray', section:'Condiments & Pantry', frequency:'Occasional', quantity:'2', qtyType:'count', clarifier:'', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-8184-b4ca-cbceee967f5a', name:'Low sodium soy sauce', section:'Condiments & Pantry', frequency:'Rare', quantity:'1', qtyType:'count', clarifier:'bottle', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-81a0-ab8e-d0a86bdd266e', name:'Grape oil', section:'Condiments & Pantry', frequency:'Rare', quantity:'1', qtyType:'count', clarifier:'bottle', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-81c2-ac6f-e19492d0f7cb', name:'Maple syrup', section:'Condiments & Pantry', frequency:'Rare', quantity:'1', qtyType:'count', clarifier:'bottle', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-812b-9026-d205d37360c9', name:'WF Tortilla chips', section:'Snacks', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'bag', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-8167-9308-d6aafda9db4f', name:'Wavy potato chips', section:'Snacks', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'bag', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-81bd-b9f7-cd56752befb1', name:"Annie's mixed snack bags", section:'Snacks', frequency:'Most weeks', quantity:'1', qtyType:'count', clarifier:'package', notes:'Cheddar bunnies + graham crackers variety', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-81a9-ae64-cd22c05b4e43', name:'Once Upon a Farm tractor wheel bars', section:'Snacks', frequency:'Occasional', quantity:'2', qtyType:'count', clarifier:'boxes', notes:'If on sale, grab 5; otherwise 2', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-81e6-abb8-f5e0b2cd2da2', name:'Coterie diapers', section:'Household & Baby', frequency:'Most weeks', quantity:'2', qtyType:'count', clarifier:'packs, size 6', notes:'', store:'Whole Foods', lastPurchased:'' },
-  { id:'32660659-6369-81b0-bf7d-f5a5cba6744c', name:'Wipes', section:'Household & Baby', frequency:'Most weeks', quantity:'2', qtyType:'count', clarifier:'packs', notes:'', store:'Either', lastPurchased:'' },
-];
+// ─── GROCERY ITEMS (synced from Notion) ───────────────────────────────────────
+// Source of truth: https://www.notion.so/fb336d0e9c39465a9ec3a75cad9f561d
+// Item names, quantities and notes match Notion exactly. All names in Title Case.
+const GROCERY_ITEMS = [
 
-init();
+  // ── FRUITS ──────────────────────────────────────────────────────────────────
+  { id:'32660659636981329178e1366322796d', name:'Bananas', section:'Fruits', frequency:'Every week', sortOrder:1, quantity:'4', notes:'Mix of ripe and firm', store:'Whole Foods' },
+  { id:'32660659636981d08350edbeab362284', name:'Mixed Melon', section:'Fruits', frequency:'Every week', sortOrder:2, quantity:'1 container', notes:'', store:'Whole Foods' },
+  { id:'326606596369812789d0f0ad27cea87b', name:'Jumbo Blueberries', section:'Fruits', frequency:'Most weeks', sortOrder:3, quantity:'1 container', notes:'', store:'Whole Foods' },
+  { id:'326606596369814da5bbdb4f30fd7e8a', name:'Strawberries', section:'Fruits', frequency:'Most weeks', sortOrder:4, quantity:'1 container', notes:'', store:'Whole Foods' },
+  { id:'326606596369816bb40dd405ac6950c4', name:'Granny Smith Apples', section:'Fruits', frequency:'Occasional', sortOrder:19, quantity:'5', notes:'', store:'Whole Foods' },
+  { id:'32660659636981178acde28ad94c6ce8', name:'Green Grapes', section:'Fruits', frequency:'Occasional', sortOrder:20, quantity:'1 bag', notes:'', store:'Whole Foods' },
+  { id:'3266065963698120afdec23ee66469f1', name:'Mango', section:'Fruits', frequency:'Occasional', sortOrder:21, quantity:'1', notes:'', store:'Whole Foods' },
+  { id:'32660659636981b49d01c38df7d8ac27', name:'Limes', section:'Fruits', frequency:'Occasional', sortOrder:22, quantity:'4', notes:'', store:'Whole Foods' },
+  { id:'32660659636981998918d200bf0f0964', name:'Lemons', section:'Fruits', frequency:'Occasional', sortOrder:23, quantity:'2', notes:'', store:'Whole Foods' },
+
+  // ── VEGETABLES ──────────────────────────────────────────────────────────────
+  { id:'32660659636981eab6aaf9dc3dba476f', name:'Broccoli', section:'Vegetables', frequency:'Most weeks', sortOrder:5, quantity:'1 head', notes:'', store:'Whole Foods' },
+  { id:'32660659636981a2b969f1efe763da59', name:'Purple Cauliflower', section:'Vegetables', frequency:'Most weeks', sortOrder:6, quantity:'1 head', notes:'', store:'Whole Foods' },
+  { id:'3266065963698165923ccc70d2554613', name:'English Cucumber', section:'Vegetables', frequency:'Most weeks', sortOrder:7, quantity:'1', notes:'', store:'Whole Foods' },
+  { id:'3266065963698198a685f44e04c29b00', name:'Carrots', section:'Vegetables', frequency:'Most weeks', sortOrder:8, quantity:'1 bunch', notes:'', store:'Whole Foods' },
+  { id:'326606596369811b8893f355a66203b8', name:'Baby Yellow Potatoes', section:'Vegetables', frequency:'Most weeks', sortOrder:9, quantity:'1 small bag', notes:'', store:'Whole Foods' },
+  { id:'3266065963698115a37acb1df84f4a8e', name:'Avocado', section:'Vegetables', frequency:'Most weeks', sortOrder:10, quantity:'2', notes:'Firm ok if not eating immediately', store:'Whole Foods' },
+  { id:'32660659636981a4ac87de8082563250', name:'Red Bell Pepper', section:'Vegetables', frequency:'Most weeks', sortOrder:11, quantity:'1', notes:'', store:'Whole Foods' },
+  { id:'32660659636981ccba44d24b3ee88885', name:'Red Onion', section:'Vegetables', frequency:'Most weeks', sortOrder:12, quantity:'1', notes:'', store:'Whole Foods' },
+  { id:'33460659636981fca0b8cf91fa2e97f4', name:'Coleslaw Mix', section:'Vegetables', frequency:'Occasional', sortOrder:13, quantity:'1 bag', notes:'', store:'Whole Foods' },
+  { id:'32660659636981b7b095e781a4cbe023', name:'Iceberg Lettuce', section:'Vegetables', frequency:'Occasional', sortOrder:14, quantity:'1 head', notes:'', store:'Whole Foods' },
+  { id:'32660659636981dab07cf69e7b66bc95', name:'Cherry Tomatoes', section:'Vegetables', frequency:'Occasional', sortOrder:15, quantity:'1 pint', notes:'', store:'Whole Foods' },
+  { id:'32660659636981e88407c11d52073067', name:'Tomatoes (Slicing)', section:'Vegetables', frequency:'Occasional', sortOrder:16, quantity:'2', notes:'', store:'Whole Foods' },
+  { id:'326606596369810db105d1e3de71bf2f', name:'Mushrooms', section:'Vegetables', frequency:'Occasional', sortOrder:17, quantity:'1 container', notes:'', store:'Whole Foods' },
+  { id:'326606596369814facbfeae1894ab9a4', name:'Snap or Snow Peas', section:'Vegetables', frequency:'Occasional', sortOrder:18, quantity:'1 small bag', notes:'', store:'Whole Foods' },
+  { id:'32660659636981b39ddadd61e9f3e495', name:'Radishes', section:'Vegetables', frequency:'Occasional', sortOrder:24, quantity:'1 bunch', notes:'', store:'Whole Foods' },
+  { id:'326606596369812e8b60f6ce8c91ef08', name:'Scallions', section:'Vegetables', frequency:'Occasional', sortOrder:25, quantity:'1 bunch', notes:'', store:'Whole Foods' },
+  { id:'32d60659636981a6a8ebc2f1875785fa', name:'Shallot', section:'Vegetables', frequency:'Occasional', sortOrder:26, quantity:'1', notes:'', store:'Whole Foods' },
+  { id:'33a606596369813c8ddce71cdf985034', name:'Sweet Onion', section:'Vegetables', frequency:'Occasional', sortOrder:27, quantity:'2', notes:'', store:'Whole Foods' },
+  { id:'3266065963698128b700e0b256cb5b8a', name:'Fennel', section:'Vegetables', frequency:'Rare', sortOrder:28, quantity:'1 large bulb', notes:'', store:'Whole Foods' },
+  { id:'326606596369814fa2dad660ac9c4550', name:'Jalapeño', section:'Vegetables', frequency:'Rare', sortOrder:29, quantity:'2', notes:'', store:'Whole Foods' },
+  { id:'33a60659636981919e0df648591a4e60', name:'Corn', section:'Vegetables', frequency:'Rare', sortOrder:30, quantity:'4 ears', notes:'', store:'Whole Foods' },
+  { id:'33a60659636981e4aae4c772175a8381', name:'Russet Potato', section:'Vegetables', frequency:'Rare', sortOrder:31, quantity:'3', notes:'', store:'Whole Foods' },
+  { id:'32660659636981fab20df58e4665e6eb', name:'Sweet Potato', section:'Vegetables', frequency:'Rare', sortOrder:32, quantity:'1', notes:'The usual one for pancakes', store:'Whole Foods' },
+
+  // ── PROTEIN ─────────────────────────────────────────────────────────────────
+  { id:'3266065963698184bedfc3d4f509014d', name:'Boneless Skinless Chicken Thighs', section:'Protein', frequency:'Every week', sortOrder:1, quantity:'1 pack', notes:'', store:'Whole Foods' },
+  { id:'3266065963698127a18ce843579e3bb4', name:'Boneless Skinless Chicken Breasts', section:'Protein', frequency:'Most weeks', sortOrder:2, quantity:'1 pack', notes:'', store:'Whole Foods' },
+  { id:'32660659636981259836f7385a2d80df', name:'Bacon', section:'Protein', frequency:'Most weeks', sortOrder:3, quantity:'1 pack', notes:'', store:'Whole Foods' },
+  { id:'32660659636981b2b9d7d600dfe03a74', name:'Salmon Filet', section:'Protein', frequency:'Occasional', sortOrder:4, quantity:'0.5 lb', notes:'Ask to remove skin at fish counter', store:'Whole Foods' },
+  { id:'32660659636981e49f34db729b13dab4', name:'Scallops (Small)', section:'Protein', frequency:'Occasional', sortOrder:5, quantity:'8 pieces', notes:'From fish counter', store:'Whole Foods' },
+  { id:'3266065963698150b93edb816233d8e6', name:'Shrimp', section:'Protein', frequency:'Occasional', sortOrder:6, quantity:'1 lb', notes:'From fish counter; peeled, deveined', store:'Whole Foods' },
+  { id:'326606596369810389cfc69ca4ddc163', name:'Boneless Pork Loin Chops', section:'Protein', frequency:'Occasional', sortOrder:7, quantity:'1 lb', notes:'The skinnier kind if 2 options', store:'Whole Foods' },
+  { id:'326606596369810e8738f3defa91650f', name:'Skirt Steak', section:'Protein', frequency:'Occasional', sortOrder:8, quantity:'1 lb', notes:'', store:'Whole Foods' },
+  { id:'32660659636981e99c93d24f120ddfed', name:'Cod (Atlantic)', section:'Protein', frequency:'Occasional', sortOrder:9, quantity:'1 lb', notes:'Not portioned — whole strip; sub halibut if unavailable', store:'Whole Foods' },
+  { id:'3266065963698181a089e63fe3dfb381', name:'Beef Kabob', section:'Protein', frequency:'Rare', sortOrder:10, quantity:'1 skewer', notes:'', store:'Whole Foods' },
+  { id:'32660659636981ce8094ccff47e3558e', name:'Chicken Kabob', section:'Protein', frequency:'Rare', sortOrder:11, quantity:'1 skewer', notes:'', store:'Whole Foods' },
+  { id:'32660659636981878d58df60d713a626', name:'Jalapeño Chicken Sausage', section:'Protein', frequency:'Rare', sortOrder:12, quantity:'2 packages', notes:'', store:'Whole Foods' },
+
+  // ── DAIRY ───────────────────────────────────────────────────────────────────
+  { id:'32660659636981ae9bc2cf8bf8d47abb', name:'Whole Milk (Half Gallon)', section:'Dairy', frequency:'Every week', sortOrder:1, quantity:'1', notes:'', store:'Whole Foods' },
+  { id:'3266065963698127b135fa9d2c72d9fd', name:'Eggs', section:'Dairy', frequency:'Every week', sortOrder:2, quantity:'2 dozen', notes:'', store:'Whole Foods' },
+  { id:'32660659636981419b96d69fe9854583', name:'Butter (Unsalted)', section:'Dairy', frequency:'Most weeks', sortOrder:3, quantity:'4 packs', notes:'', store:'Whole Foods' },
+  { id:'32660659636981b39d4ef3d6ad562a0a', name:'Shredded Mexican Cheese', section:'Dairy', frequency:'Most weeks', sortOrder:4, quantity:'1 bag', notes:'', store:'Whole Foods' },
+  { id:'32d606596369811c8a6fdffce18aecba', name:'Stonyfield Kids Yogurt (Plain)', section:'Dairy', frequency:'Occasional', sortOrder:5, quantity:'1 6-pack', notes:'', store:'Whole Foods' },
+  { id:'32f606596369817fb28dd048525186d0', name:'Cotija Cheese', section:'Dairy', frequency:'Occasional', sortOrder:6, quantity:'1 container', notes:'', store:'Whole Foods' },
+
+  // ── DELI ────────────────────────────────────────────────────────────────────
+  { id:'32660659636981e688e8e63f238a6b78', name:'Yellow American Cheese', section:'Deli', frequency:'Most weeks', sortOrder:1, quantity:'1/4 lb', notes:'From deli counter', store:'Whole Foods' },
+  { id:'32d606596369814f8e28e738b526781e', name:'Yellow Sharp Cheddar (Sliced)', section:'Deli', frequency:'Occasional', sortOrder:2, quantity:'1/4 lb', notes:'From deli counter', store:'Whole Foods' },
+  { id:'33a60659636981fba591d1517b8a06b9', name:'Oven Roasted Turkey', section:'Deli', frequency:'Occasional', sortOrder:3, quantity:'1 lb', notes:'In-house WF; sub peppered roasted if unavailable', store:'Whole Foods' },
+  { id:'326606596369816aabbefb71f72732da', name:'Black Forest Ham', section:'Deli', frequency:'Most weeks', sortOrder:4, quantity:'3/4 lb', notes:'Sliced thin from deli', store:'Whole Foods' },
+  { id:'3266065963698150bd04eb8237a585aa', name:'Chicken Salad', section:'Deli', frequency:'Most weeks', sortOrder:5, quantity:'1 medium container', notes:'Classic, from deli', store:'Whole Foods' },
+
+  // ── FROZEN ──────────────────────────────────────────────────────────────────
+  { id:'326606596369810f81afd0a594008da9', name:'Ice Cream Cookie Sandwiches', section:'Frozen', frequency:'Every week', sortOrder:2, quantity:'1 box', notes:'', store:'Whole Foods' },
+  { id:'326606596369815a9f88fdc377dfdf80', name:"Jeni's Salted Caramel Ice Cream", section:'Frozen', frequency:'Most weeks', sortOrder:3, quantity:'1 pint', notes:'', store:'Whole Foods' },
+  { id:'32660659636981dc98f8d9de14e4437c', name:"Jeni's Blackout Chocolate Cake Ice Cream", section:'Frozen', frequency:'Occasional', sortOrder:4, quantity:'1 pint', notes:'', store:'Whole Foods' },
+  { id:'326606596369817e8886fcbdfffbb366', name:'Frozen Mixed Berries', section:'Frozen', frequency:'Occasional', sortOrder:5, quantity:'1 bag', notes:'', store:'Whole Foods' },
+  { id:'326606596369810291e2f97507066b4f', name:'Tyson Lightly Breaded Chicken Strips', section:'Frozen', frequency:'Most weeks', sortOrder:1, quantity:'2 packages', notes:'In freezer section near tortillas', store:'Jewel' },
+
+  // ── GRAINS & BREAD ──────────────────────────────────────────────────────────
+  { id:'32660659636981f69218de9cea2b24df', name:'Sourdough Bread (Sliced)', section:'Grains & Bread', frequency:'Every week', sortOrder:1, quantity:'1 loaf', notes:'', store:'Whole Foods' },
+  { id:'3266065963698122aabdf34a027a6cf4', name:'French Bread (Sliced)', section:'Grains & Bread', frequency:'Most weeks', sortOrder:2, quantity:'1 loaf', notes:'', store:'Whole Foods' },
+  { id:'3266065963698168b5f7dd56ec6bbe53', name:'Mission Tortillas (Soft Taco)', section:'Grains & Bread', frequency:'Most weeks', sortOrder:3, quantity:'1 pack', notes:'10-count, orange; display is behind the floral section', store:'Jewel' },
+  { id:'326606596369816ba939fa1ef0ac854a', name:'Mission Tortillas (Fajita Size)', section:'Grains & Bread', frequency:'Occasional', sortOrder:4, quantity:'1 pack', notes:'20-count, red', store:'Jewel' },
+  { id:'326606596369812eb0ebd28e3d92d10e', name:"Nature's Own Brioche Buns", section:'Grains & Bread', frequency:'Occasional', sortOrder:5, quantity:'1 package', notes:'Sub similar if unavailable — let us know', store:'Whole Foods' },
+  { id:'3266065963698110a74ee497fcb20cc1', name:'French Bread Sandwich Rolls', section:'Grains & Bread', frequency:'Occasional', sortOrder:6, quantity:'1 4-pack', notes:'Fresh bakery section; look like sub/sandwich rolls', store:'Jewel' },
+  { id:'326606596369815baffdf600076c6699', name:'Rolled Oats', section:'Grains & Bread', frequency:'Occasional', sortOrder:7, quantity:'1 bag', notes:'', store:'Whole Foods' },
+  { id:'326606596369816094afd7eeffea0cb9', name:'De Cecco Cavatappi', section:'Grains & Bread', frequency:'Rare', sortOrder:8, quantity:'1 box', notes:'', store:'Whole Foods' },
+  { id:'33a60659636981d68fddf9f91ca26c0d', name:'De Cecco Thin Spaghetti', section:'Grains & Bread', frequency:'Rare', sortOrder:9, quantity:'1 box', notes:'', store:'Whole Foods' },
+  { id:'33a60659636981c7874fe8850b8aff25', name:'De Cecco Penne', section:'Grains & Bread', frequency:'Rare', sortOrder:10, quantity:'1 box', notes:'', store:'Whole Foods' },
+  { id:'33a606596369819180c5e52424742ca8', name:"Rao's Penne", section:'Grains & Bread', frequency:'Rare', sortOrder:11, quantity:'1 package', notes:'', store:'Whole Foods' },
+  { id:'33a606596369813bbb4deb72d1c195b7', name:"Rao's Farfalle", section:'Grains & Bread', frequency:'Rare', sortOrder:12, quantity:'1 package', notes:'', store:'Whole Foods' },
+  { id:'32d60659636981c69ecbf93ac2964787', name:'Israeli/Pearl Couscous', section:'Grains & Bread', frequency:'Occasional', sortOrder:13, quantity:'1 box', notes:'', store:'Whole Foods' },
+  { id:'334606596369811eb5b4eaa3a28f312c', name:"Annie's Mac and Cheese", section:'Grains & Bread', frequency:'Occasional', sortOrder:14, quantity:'4 boxes', notes:'', store:'Whole Foods' },
+
+  // ── BEVERAGES ───────────────────────────────────────────────────────────────
+  { id:'32660659636981b19cb6bev785799aa', name:'Spindrift Grapefruit', section:'Beverages', frequency:'Every week', sortOrder:1, quantity:'1 8-pack', notes:'', store:'Whole Foods' },
+  { id:'326606596369817dad73f98df952b6b0', name:'Spindrift Lemon', section:'Beverages', frequency:'Most weeks', sortOrder:2, quantity:'1 8-pack', notes:'', store:'Whole Foods' },
+  { id:'3266065963698156880dc582e32be79c', name:'Spindrift Raspberry/Lime', section:'Beverages', frequency:'Most weeks', sortOrder:3, quantity:'1 8-pack', notes:'', store:'Whole Foods' },
+  { id:'326606596369818b97e6ef86563e3937', name:'Topo Chico Lime (Bottles)', section:'Beverages', frequency:'Most weeks', sortOrder:4, quantity:'1 12-pack', notes:'', store:'Whole Foods' },
+  { id:'326606596369817d941bd92f402f8aa8', name:"Apple Juice (Mott's 8-Pack)", section:'Beverages', frequency:'Occasional', sortOrder:5, quantity:'1 8-pack', notes:'', store:'Jewel' },
+  { id:'32660659636981df878fc074cf8b380d', name:'Distilled Water', section:'Beverages', frequency:'Occasional', sortOrder:6, quantity:'2 gallons', notes:'', store:'Whole Foods' },
+  { id:'3266065963698134829ed77dd228c4b4', name:'Whole Coffee Beans', section:'Beverages', frequency:'Occasional', sortOrder:7, quantity:'1 bag', notes:'Light or medium roast', store:'Whole Foods' },
+
+  // ── CONDIMENTS & PANTRY ─────────────────────────────────────────────────────
+  { id:'32660659636981ed8c50e56868910807', name:'WF Peanut Butter (Unsweetened, Unsalted)', section:'Condiments & Pantry', frequency:'Most weeks', sortOrder:1, quantity:'2 jars', notes:'Green top', store:'Whole Foods' },
+  { id:'32660659636981dd8d7ae62db830642f', name:'WF Almond Butter (Organic, Creamy, Unsalted)', section:'Condiments & Pantry', frequency:'Occasional', sortOrder:2, quantity:'1 jar', notes:'Green top', store:'Whole Foods' },
+  { id:'326606596369814e9114ff11cda777ae', name:"Rao's Alfredo Sauce", section:'Condiments & Pantry', frequency:'Occasional', sortOrder:3, quantity:'1 jar', notes:'', store:'Whole Foods' },
+  { id:'32660659636981cb8a71d56a8fdb1fcf', name:'Sesame & Ginger Dressing', section:'Condiments & Pantry', frequency:'Occasional', sortOrder:4, quantity:'2 bottles', notes:'', store:'Whole Foods' },
+  { id:'326606596369815d9cf3dfe6854ad9ef', name:'Hidden Valley Ranch Dressing', section:'Condiments & Pantry', frequency:'Occasional', sortOrder:5, quantity:'2 bottles', notes:'', store:'Jewel' },
+  { id:'32660659636981a0a29dc950c43bd591', name:"Frank's Hot Sauce (Buffalo Wings)", section:'Condiments & Pantry', frequency:'Occasional', sortOrder:6, quantity:'1 bottle', notes:'', store:'Jewel' },
+  { id:'326606596369816db26dd007475a59d3', name:'Cholula Hot Sauce', section:'Condiments & Pantry', frequency:'Occasional', sortOrder:7, quantity:'1 bottle', notes:'', store:'Whole Foods' },
+  { id:'3266065963698128884ec7dbe3bf3669', name:'Tomato Paste', section:'Condiments & Pantry', frequency:'Occasional', sortOrder:8, quantity:'1 tube', notes:'', store:'Whole Foods' },
+  { id:'32660659636981a4b4c2ed8877702bfe', name:'Diced Green Chiles', section:'Condiments & Pantry', frequency:'Occasional', sortOrder:9, quantity:'1 small jar', notes:'', store:'Whole Foods' },
+  { id:'326606596369817ab064d79b578fdae4', name:'Enchilada Sauce', section:'Condiments & Pantry', frequency:'Occasional', sortOrder:10, quantity:'2 containers', notes:'', store:'Whole Foods' },
+  { id:'32660659636981c19341cd7cc829775d', name:'Sour Cream', section:'Condiments & Pantry', frequency:'Occasional', sortOrder:11, quantity:'1 small container', notes:'', store:'Whole Foods' },
+  { id:'32660659636981169b1cc8ff25cc7ad2', name:'Crumbled Feta', section:'Condiments & Pantry', frequency:'Occasional', sortOrder:12, quantity:'1 small container', notes:'', store:'Whole Foods' },
+  { id:'32660659636981d29d75c4d12450db8b', name:'Avocado Oil Spray', section:'Condiments & Pantry', frequency:'Occasional', sortOrder:13, quantity:'1 bottle', notes:'', store:'Whole Foods' },
+  { id:'3266065963698184b4cacbceee967f5a', name:'Low Sodium Soy Sauce', section:'Condiments & Pantry', frequency:'Rare', sortOrder:14, quantity:'1 bottle', notes:'', store:'Whole Foods' },
+  { id:'32660659636981a0ab8ed0a86bdd266e', name:'Grapeseed Oil', section:'Condiments & Pantry', frequency:'Rare', sortOrder:15, quantity:'1 bottle', notes:'', store:'Whole Foods' },
+  { id:'32660659636981c2ac6fe19492d0f7cb', name:'Maple Syrup', section:'Condiments & Pantry', frequency:'Rare', sortOrder:16, quantity:'1 bottle', notes:'', store:'Whole Foods' },
+  { id:'33460659636981a0a907c449f7cd4742', name:'Sriracha', section:'Condiments & Pantry', frequency:'Occasional', sortOrder:17, quantity:'1 bottle', notes:'', store:'Whole Foods' },
+  { id:'32d60659636981f4b296df234aa34a07', name:'Tartar Sauce', section:'Condiments & Pantry', frequency:'Occasional', sortOrder:18, quantity:'1 bottle', notes:'', store:'Whole Foods' },
+
+  // ── SNACKS ──────────────────────────────────────────────────────────────────
+  { id:'326606596369812b9026d205d37360c9', name:'WF Tortilla Chips', section:'Snacks', frequency:'Most weeks', sortOrder:1, quantity:'1 bag', notes:'', store:'Whole Foods' },
+  { id:'32660659636981679308d6aafda9db4f', name:'Wavy Potato Chips', section:'Snacks', frequency:'Most weeks', sortOrder:2, quantity:'1 bag', notes:'', store:'Whole Foods' },
+  { id:'32660659636981bdb9f7cd56752befb1', name:"Annie's Mixed Snack Bags", section:'Snacks', frequency:'Most weeks', sortOrder:3, quantity:'1 package', notes:'Cheddar bunnies + graham crackers variety', store:'Whole Foods' },
+  { id:'32660659636981599380fb291b671d91', name:'Club Crackers (Smaller Sleeves)', section:'Snacks', frequency:'Occasional', sortOrder:4, quantity:'1 box', notes:'', store:'Jewel' },
+  { id:'32660659636981b6bd4ac14830b03285', name:'Ritz Crackers (Smaller Sleeves)', section:'Snacks', frequency:'Occasional', sortOrder:5, quantity:'1 box', notes:'', store:'Jewel' },
+  { id:'32660659636981a9ae64cd22c05b4e43', name:'Once Upon a Farm Tractor Wheel Bars', section:'Snacks', frequency:'Occasional', sortOrder:6, quantity:'2 boxes', notes:'', store:'Whole Foods' },
+  { id:'32660659636981078ec2d6613fc71751', name:"Hershey's Snack Size Chocolates", section:'Snacks', frequency:'Rare', sortOrder:7, quantity:'1 bag', notes:'', store:'Jewel' },
+  { id:'3266065963698126af3ecfa33d213394', name:"Reese's Snack Size Peanut Butter Cups", section:'Snacks', frequency:'Rare', sortOrder:8, quantity:'1 bag', notes:'', store:'Jewel' },
+
+  // ── HOUSEHOLD & BABY ────────────────────────────────────────────────────────
+  { id:'32660659636981e6abb8f5e0b2cd2da2', name:'Coterie Diapers (Size 6)', section:'Household & Baby', frequency:'Most weeks', sortOrder:1, quantity:'2 packs', notes:'', store:'Whole Foods' },
+  { id:'32660659636981b0bf7df5a5cba6744c', name:'Wipes (Full Size Packs)', section:'Household & Baby', frequency:'Most weeks', sortOrder:2, quantity:'2 packs', notes:'', store:'Either' },
+  { id:'33a606596369817fb650d6042bc693a3', name:'Coterie Wipes', section:'Household & Baby', frequency:'Most weeks', sortOrder:3, quantity:'2 packs', notes:'', store:'Whole Foods' },
+  { id:'32660659636981a39025d39099ee6254', name:'Sudafed Head Congestion + Flu Severe', section:'Household & Baby', frequency:'Rare', sortOrder:4, quantity:'2 packages', notes:'', store:'Jewel' },
+  { id:'326606596369817ea96bfcf0beed55b3', name:'Simply Potatoes (Diced)', section:'Household & Baby', frequency:'Occasional', sortOrder:5, quantity:'1 bag', notes:'Usually by eggs section', store:'Jewel' },
+];
 </script>
 </body>
 </html>
