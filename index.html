@@ -816,13 +816,18 @@ async function skipGroceries() {
   showSuccess([], []);
 }
 
+// Zapier flattens array fields into comma-separated strings.
+// Notes can contain commas (e.g. "peeled, deveined") which would misalign the array.
+// We sanitize by replacing commas with semicolons — consistent with existing note style.
+function sanitizeForCSV(s) {
+  return (s || '').replace(/,/g, ';');
+}
+
 function submitGrocery() {
   const btn = document.getElementById('grocery-submit-btn');
   btn.disabled = true;
   btn.textContent = 'Submitting...';
 
-  // Each selected item carries:
-  //   notionPageId, name, section, store, quantity (full string), notes, lastPurchased
   const selected = Object.entries(selections)
     .filter(([, s]) => s.checked)
     .map(([id, s]) => ({
@@ -831,7 +836,7 @@ function submitGrocery() {
       section: s.section,
       store: s.store || 'Whole Foods',
       quantity: s.qty,
-      notes: s.notes || '',
+      notes: sanitizeForCSV(s.notes),
     }));
 
   const custom = [];
@@ -842,7 +847,7 @@ function submitGrocery() {
           name: r.name.trim(),
           section,
           quantity: buildCustomQty(r),
-          notes: r.notes || '',
+          notes: sanitizeForCSV(r.notes),
           isNew: true,
           store: 'Whole Foods',
         });
